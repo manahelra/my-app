@@ -40,6 +40,10 @@
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
 
+        .search-bar { margin-bottom: 20px; position: relative; }
+        .search-bar input { width: 100%; padding: 12px 40px 12px 12px; border-radius: 8px; border: 2px solid var(--primary-color); outline: none; }
+        .search-bar i { position: absolute; right: 15px; top: 15px; color: var(--primary-color); }
+
         .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; background: var(--light-color); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
         .input-field { display: flex; flex-direction: column; gap: 5px; }
         label { font-size: 0.9rem; font-weight: bold; }
@@ -77,6 +81,11 @@
         <div class="tab" onclick="showTab('market')">🛒 السوق</div>
         <div class="tab" onclick="showTab('history')">📜 سجل الفواتير</div>
         <div class="tab" onclick="showTab('suppliers')">🤝 الموردين</div>
+    </div>
+
+    <div class="search-bar no-print">
+        <i class="fas fa-search"></i>
+        <input type="text" id="globalSearch" placeholder="بحث سريع في الجدول الحالي..." onkeyup="filterTables()">
     </div>
 
     <div id="inventory-tab" class="tab-content active">
@@ -173,6 +182,21 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId + '-tab').classList.add('active');
         event.currentTarget.classList.add('active');
+        // مسح البحث عند الانتقال بين التبويبات
+        document.getElementById('globalSearch').value = '';
+        filterTables();
+    }
+
+    // --- ميزة البحث ---
+    function filterTables() {
+        const searchValue = document.getElementById('globalSearch').value.toLowerCase();
+        const activeTab = document.querySelector('.tab-content.active');
+        const rows = activeTab.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(searchValue) ? '' : 'none';
+        });
     }
 
     // --- المخزن ---
@@ -192,11 +216,13 @@
 
     function editInventory(index) {
         const item = db.inventory[index];
+        const newName = prompt("تعديل اسم المنتج:", item.name);
         const newQty = prompt("تعديل الكمية:", item.qty);
         const newBuy = prompt("تعديل سعر الشراء:", item.buy);
         const newSell = prompt("تعديل سعر البيع:", item.sell);
 
-        if (newQty !== null && newBuy !== null && newSell !== null) {
+        if (newName && newQty !== null && newBuy !== null && newSell !== null) {
+            db.inventory[index].name = newName;
             db.inventory[index].qty = newQty;
             db.inventory[index].buy = newBuy;
             db.inventory[index].sell = newSell;
@@ -214,8 +240,8 @@
                 <td><span class="badge bg-sell">${p.sell}</span></td>
                 <td>${p.sup || 'عام'}</td>
                 <td class="no-print">
-                    <button class="btn btn-edit" onclick="editInventory(${i})"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-danger" onclick="deleteItem('inventory', ${i})"><i class="fas fa-trash"></i></button>
+                    <button class="btn btn-edit" onclick="editInventory(${i})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger" onclick="deleteItem('inventory', ${i})" title="حذف"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `).join('');
@@ -235,6 +261,22 @@
         ['m-item', 'm-qty', 'm-price', 'm-place'].forEach(id => document.getElementById(id).value = '');
     }
 
+    function editMarket(index) {
+        const item = db.market[index];
+        const newName = prompt("تعديل المادة:", item.item);
+        const newQty = prompt("تعديل الكمية:", item.qty);
+        const newPrice = prompt("تعديل السعر:", item.price);
+        const newPlace = prompt("تعديل المكان:", item.place);
+
+        if (newName && newQty !== null && newPrice !== null) {
+            db.market[index].item = newName;
+            db.market[index].qty = newQty;
+            db.market[index].price = newPrice;
+            db.market[index].place = newPlace;
+            saveAndRender();
+        }
+    }
+
     function saveMarketInvoice() {
         if(db.market.length === 0) return alert("الجدول فارغ!");
         
@@ -246,7 +288,8 @@
             total: total.toFixed(2)
         };
 
-        db.history.unshift(invoice); // إضافة للأعلى (الأحدث)
+        db.history.unshift(invoice);
+        db.market = []; // تفريغ جدول السوق بعد الحفظ
         saveAndRender();
         alert("تم حفظ الفاتورة في السجل بنجاح!");
     }
@@ -260,7 +303,8 @@
                 <td>${m.price}</td>
                 <td>${m.place}</td>
                 <td class="no-print">
-                    <button class="btn btn-danger" onclick="deleteItem('market', ${i})"><i class="fas fa-trash"></i></button>
+                    <button class="btn btn-edit" onclick="editMarket(${i})" title="تعديل"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger" onclick="deleteItem('market', ${i})" title="حذف"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `).join('');
