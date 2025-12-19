@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة المخزن وفواتير السوق</title>
+    <title>نظام إدارة المخزن المتطور</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -30,36 +30,35 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); padding: 20px; transition: 0.3s; }
-        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         
-        .tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
-        .tab { padding: 12px 20px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; color: #888; }
+        .tabs { display: flex; gap: 5px; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 12px 15px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; color: #888; transition: 0.3s; }
         .tab.active { background: var(--primary-color); color: white; }
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
 
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; background: var(--light-color); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; background: var(--light-color); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
         .input-field { display: flex; flex-direction: column; gap: 5px; }
+        label { font-size: 0.9rem; font-weight: bold; }
         input, select, textarea { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-color); }
 
-        .search-area { position: relative; margin-bottom: 20px; display: flex; gap: 10px; }
-        .search-area input { flex: 1; padding-right: 40px; height: 45px; font-size: 16px; border: 2px solid var(--primary-color); }
-        .search-area i { position: absolute; right: 15px; top: 15px; color: var(--primary-color); }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: var(--card-bg); }
         th { background: var(--primary-color); color: white; padding: 12px; text-align: right; }
         td { padding: 12px; border-bottom: 1px solid var(--border-color); }
         
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
         .btn-add { background: var(--primary-color); color: white; }
         .btn-market { background: var(--success-color); color: white; }
         .btn-danger { background: var(--danger-color); color: white; }
+        .btn-edit { background: var(--warning-color); color: white; }
         .btn-info { background: #4895ef; color: white; }
 
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; }
-        .bg-market { background: #9b59b6; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; color: white; }
+        .bg-buy { background: #5e60ce; }
+        .bg-sell { background: #4ea8de; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @media print { .no-print { display: none !important; } .container { box-shadow: none; width: 100%; } }
@@ -69,40 +68,36 @@
 
 <div class="container">
     <header class="no-print">
-        <h1><i class="fas fa-boxes"></i> نظام إدارة المتجر</h1>
+        <h1><i class="fas fa-store"></i> نظام الإدارة المطور</h1>
         <button onclick="toggleTheme()" class="btn btn-info" id="themeIcon"><i class="fas fa-moon"></i></button>
     </header>
 
     <div class="tabs no-print">
-        <div class="tab active" onclick="showTab('inventory')">📦 المخزن الرئيسي</div>
-        <div class="tab" onclick="showTab('market')">🛒 فواتير السوق</div>
+        <div class="tab active" onclick="showTab('inventory')">📦 المخزن</div>
+        <div class="tab" onclick="showTab('market')">🛒 السوق</div>
+        <div class="tab" onclick="showTab('history')">📜 سجل الفواتير</div>
         <div class="tab" onclick="showTab('suppliers')">🤝 الموردين</div>
     </div>
 
     <div id="inventory-tab" class="tab-content active">
-        <div class="search-area no-print">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInventory" placeholder="ابحث عن منتج بالاسم أو المورد..." onkeyup="filterInventory()">
-        </div>
-
         <div class="input-grid no-print">
-            <div class="input-field"><label>اسم المنتج</label><input type="text" id="p-name"></div>
-            <div class="input-field"><label>الكمية</label><input type="number" id="p-qty" value="1"></div>
-            <div class="input-field"><label>سعر التكلفة</label><input type="number" id="p-cost"></div>
+            <div class="input-field"><label>المنتج</label><input type="text" id="p-name"></div>
+            <div class="input-field"><label>الكمية</label><input type="number" id="p-qty"></div>
+            <div class="input-field"><label>سعر الشراء</label><input type="number" id="p-buy"></div>
+            <div class="input-field"><label>سعر البيع</label><input type="number" id="p-sell"></div>
             <div class="input-field"><label>المورد</label><select id="p-sup"></select></div>
             <div class="input-field" style="justify-content: flex-end;">
-                <button class="btn btn-add" onclick="addToInventory()"><i class="fas fa-plus"></i> إضافة للمخزن</button>
+                <button class="btn btn-add" onclick="addToInventory()"><i class="fas fa-plus"></i> إضافة</button>
             </div>
         </div>
-
         <table>
             <thead>
                 <tr>
                     <th>المنتج</th>
                     <th>الكمية</th>
-                    <th>التكلفة</th>
+                    <th>شراء</th>
+                    <th>بيع</th>
                     <th>المورد</th>
-                    <th>الإجمالي</th>
                     <th class="no-print">إجراءات</th>
                 </tr>
             </thead>
@@ -111,68 +106,68 @@
     </div>
 
     <div id="market-tab" class="tab-content">
-        <div class="no-print">
-            <h3 style="margin-bottom: 15px; color: var(--success-color);">تسجيل فاتورة شراء من السوق</h3>
-            <div class="input-grid">
-                <div class="input-field"><label>الغرض / المادة</label><input type="text" id="m-item"></div>
-                <div class="input-field"><label>الكمية</label><input type="number" id="m-qty" value="1"></div>
-                <div class="input-field"><label>السعر الإجمالي</label><input type="number" id="m-price"></div>
-                <div class="input-field"><label>مكان الشراء</label><input type="text" id="m-place" placeholder="اسم المحل أو السوق"></div>
-                <div class="input-field" style="justify-content: flex-end;">
-                    <button class="btn btn-market" onclick="addToMarket()"><i class="fas fa-shopping-cart"></i> حفظ الفاتورة</button>
-                </div>
+        <div class="input-grid no-print">
+            <div class="input-field"><label>المادة</label><input type="text" id="m-item"></div>
+            <div class="input-field"><label>الكمية</label><input type="number" id="m-qty"></div>
+            <div class="input-field"><label>السعر الكلي</label><input type="number" id="m-price"></div>
+            <div class="input-field"><label>المكان</label><input type="text" id="m-place"></div>
+            <div class="input-field" style="justify-content: flex-end; flex-direction: row; gap: 5px;">
+                <button class="btn btn-market" onclick="addToMarket()"><i class="fas fa-plus"></i> إضافة للجدول</button>
+                <button class="btn btn-info" onclick="saveMarketInvoice()"><i class="fas fa-save"></i> حفظ في السجل</button>
             </div>
         </div>
-
-        <div class="search-area no-print">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchMarket" placeholder="ابحث في فواتير السوق..." onkeyup="filterMarket()">
-        </div>
-
-        <table>
+        <table id="market-table">
             <thead>
                 <tr>
-                    <th>التاريخ</th>
                     <th>المادة</th>
                     <th>الكمية</th>
-                    <th>المكان</th>
                     <th>السعر</th>
+                    <th>المكان</th>
                     <th class="no-print">إجراءات</th>
                 </tr>
             </thead>
             <tbody id="market-list"></tbody>
-            <tfoot>
+        </table>
+    </div>
+
+    <div id="history-tab" class="tab-content">
+        <h3>سجل الفواتير المحفوظة</h3>
+        <br>
+        <table>
+            <thead>
                 <tr>
-                    <td colspan="4" style="text-align: left; font-weight: bold;">مجموع فواتير السوق:</td>
-                    <td id="market-total-sum" style="font-weight: bold; color: var(--danger-color);">0</td>
-                    <td></td>
+                    <th>التاريخ والوقت</th>
+                    <th>عدد المواد</th>
+                    <th>إجمالي المبلغ</th>
+                    <th>التفاصيل</th>
+                    <th>إجراءات</th>
                 </tr>
-            </tfoot>
+            </thead>
+            <tbody id="history-list"></tbody>
         </table>
     </div>
 
     <div id="suppliers-tab" class="tab-content">
         <div class="input-grid no-print">
             <div class="input-field"><label>اسم المورد</label><input type="text" id="s-name"></div>
-            <div class="input-field"><label>رقم الهاتف</label><input type="text" id="s-phone"></div>
+            <div class="input-field"><label>الهاتف</label><input type="text" id="s-phone"></div>
             <button class="btn btn-add" onclick="addSupplier()" style="margin-top: 25px;">إضافة مورد</button>
         </div>
-        <table>
-            <thead><tr><th>المورد</th><th>الهاتف</th><th>إجراءات</th></tr></thead>
+        <table id="suppliers-table">
+            <thead><tr><th>المورد</th><th>الهاتف</th><th>حذف</th></tr></thead>
             <tbody id="suppliers-list"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // تخزين البيانات
     let db = {
-        inventory: JSON.parse(localStorage.getItem('inv_db')) || [],
-        market: JSON.parse(localStorage.getItem('market_db')) || [],
-        suppliers: JSON.parse(localStorage.getItem('sup_db')) || []
+        inventory: JSON.parse(localStorage.getItem('inv_db_v2')) || [],
+        market: JSON.parse(localStorage.getItem('market_db_v2')) || [],
+        history: JSON.parse(localStorage.getItem('history_db_v2')) || [],
+        suppliers: JSON.parse(localStorage.getItem('sup_db_v2')) || []
     };
 
-    // التبديل بين الأقسام
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -180,98 +175,126 @@
         event.currentTarget.classList.add('active');
     }
 
-    // وظائف المخزن
+    // --- المخزن ---
     function addToInventory() {
         const name = document.getElementById('p-name').value;
         const qty = document.getElementById('p-qty').value;
-        const cost = document.getElementById('p-cost').value;
+        const buy = document.getElementById('p-buy').value;
+        const sell = document.getElementById('p-sell').value;
         const sup = document.getElementById('p-sup').value;
 
-        if(!name || !cost) return alert("أكمل البيانات");
+        if(!name || !buy || !sell) return alert("أكمل البيانات الأساسية");
 
-        db.inventory.push({ name, qty, cost, sup, id: Date.now() });
-        save();
-        renderInventory();
-        document.getElementById('p-name').value = '';
+        db.inventory.push({ name, qty, buy, sell, sup, id: Date.now() });
+        saveAndRender();
+        ['p-name', 'p-qty', 'p-buy', 'p-sell'].forEach(id => document.getElementById(id).value = '');
     }
 
-    function renderInventory(data = db.inventory) {
+    function editInventory(index) {
+        const item = db.inventory[index];
+        const newQty = prompt("تعديل الكمية:", item.qty);
+        const newBuy = prompt("تعديل سعر الشراء:", item.buy);
+        const newSell = prompt("تعديل سعر البيع:", item.sell);
+
+        if (newQty !== null && newBuy !== null && newSell !== null) {
+            db.inventory[index].qty = newQty;
+            db.inventory[index].buy = newBuy;
+            db.inventory[index].sell = newSell;
+            saveAndRender();
+        }
+    }
+
+    function renderInventory() {
         const list = document.getElementById('inventory-list');
-        list.innerHTML = data.map((p, i) => `
+        list.innerHTML = db.inventory.map((p, i) => `
             <tr>
-                <td>${p.name}</td>
+                <td><b>${p.name}</b></td>
                 <td>${p.qty}</td>
-                <td>${p.cost}</td>
-                <td><span class="badge bg-market">${p.sup || 'عام'}</span></td>
-                <td>${(p.qty * p.cost).toFixed(2)}</td>
+                <td><span class="badge bg-buy">${p.buy}</span></td>
+                <td><span class="badge bg-sell">${p.sell}</span></td>
+                <td>${p.sup || 'عام'}</td>
                 <td class="no-print">
+                    <button class="btn btn-edit" onclick="editInventory(${i})"><i class="fas fa-edit"></i></button>
                     <button class="btn btn-danger" onclick="deleteItem('inventory', ${i})"><i class="fas fa-trash"></i></button>
                 </td>
             </tr>
         `).join('');
     }
 
-    // وظائف فواتير السوق
+    // --- السوق والسجل ---
     function addToMarket() {
         const item = document.getElementById('m-item').value;
         const qty = document.getElementById('m-qty').value;
         const price = document.getElementById('m-price').value;
         const place = document.getElementById('m-place').value;
-        const date = new Date().toLocaleDateString('ar-EG');
 
-        if(!item || !price) return alert("يرجى إدخال اسم المادة والسعر");
+        if(!item || !price) return alert("أدخل اسم المادة والسعر");
 
-        db.market.push({ item, qty, price, place, date, id: Date.now() });
-        save();
-        renderMarket();
-        // مسح الحقول
-        ['m-item', 'm-price', 'm-place'].forEach(id => document.getElementById(id).value = '');
+        db.market.push({ item, qty, price, place, id: Date.now() });
+        saveAndRender();
+        ['m-item', 'm-qty', 'm-price', 'm-place'].forEach(id => document.getElementById(id).value = '');
     }
 
-    function renderMarket(data = db.market) {
+    function saveMarketInvoice() {
+        if(db.market.length === 0) return alert("الجدول فارغ!");
+        
+        const total = db.market.reduce((sum, item) => sum + parseFloat(item.price), 0);
+        const invoice = {
+            date: new Date().toLocaleString('ar-EG'),
+            timestamp: Date.now(),
+            items: [...db.market],
+            total: total.toFixed(2)
+        };
+
+        db.history.unshift(invoice); // إضافة للأعلى (الأحدث)
+        saveAndRender();
+        alert("تم حفظ الفاتورة في السجل بنجاح!");
+    }
+
+    function renderMarket() {
         const list = document.getElementById('market-list');
-        let total = 0;
-        list.innerHTML = data.map((m, i) => {
-            total += parseFloat(m.price);
-            return `
-                <tr>
-                    <td>${m.date}</td>
-                    <td>${m.item}</td>
-                    <td>${m.qty}</td>
-                    <td>${m.place || 'السوق'}</td>
-                    <td>${parseFloat(m.price).toFixed(2)}</td>
-                    <td class="no-print">
-                        <button class="btn btn-danger" onclick="deleteItem('market', ${i})"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `}).join('');
-        document.getElementById('market-total-sum').innerText = total.toFixed(2) + " دينار";
+        list.innerHTML = db.market.map((m, i) => `
+            <tr>
+                <td>${m.item}</td>
+                <td>${m.qty}</td>
+                <td>${m.price}</td>
+                <td>${m.place}</td>
+                <td class="no-print">
+                    <button class="btn btn-danger" onclick="deleteItem('market', ${i})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>
+        `).join('');
     }
 
-    // البحث (فلترة)
-    function filterInventory() {
-        const val = document.getElementById('searchInventory').value.toLowerCase();
-        const filtered = db.inventory.filter(p => 
-            p.name.toLowerCase().includes(val) || (p.sup && p.sup.toLowerCase().includes(val))
-        );
-        renderInventory(filtered);
+    function renderHistory() {
+        const list = document.getElementById('history-list');
+        list.innerHTML = db.history.map((h, i) => `
+            <tr>
+                <td>${h.date}</td>
+                <td>${h.items.length} مواد</td>
+                <td style="color:var(--danger-color); font-weight:bold;">${h.total}</td>
+                <td><button class="btn btn-info" onclick="viewInvoiceDetails(${i})">عرض</button></td>
+                <td><button class="btn btn-danger" onclick="deleteItem('history', ${i})">حذف</button></td>
+            </tr>
+        `).join('');
     }
 
-    function filterMarket() {
-        const val = document.getElementById('searchMarket').value.toLowerCase();
-        const filtered = db.market.filter(m => 
-            m.item.toLowerCase().includes(val) || (m.place && m.place.toLowerCase().includes(val))
-        );
-        renderMarket(filtered);
+    function viewInvoiceDetails(index) {
+        const inv = db.history[index];
+        let details = `فاتورة بتاريخ: ${inv.date}\n\n`;
+        inv.items.forEach(item => {
+            details += `- ${item.item} | الكمية: ${item.qty} | السعر: ${item.price}\n`;
+        });
+        details += `\nالإجمالي: ${inv.total}`;
+        alert(details);
     }
 
-    // الموردين
+    // --- الموردين ---
     function addSupplier() {
         const name = document.getElementById('s-name').value;
         if(!name) return;
         db.suppliers.push({ name, phone: document.getElementById('s-phone').value });
-        save();
-        renderSuppliers();
+        saveAndRender();
         document.getElementById('s-name').value = '';
     }
 
@@ -286,21 +309,23 @@
             db.suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
     }
 
-    // الحفظ والحذف
+    // --- الوظائف العامة ---
     function deleteItem(type, index) {
-        if(confirm("هل أنت متأكد؟")) {
+        if(confirm("هل أنت متأكد من الحذف؟")) {
             db[type].splice(index, 1);
-            save();
-            if(type === 'inventory') renderInventory();
-            if(type === 'market') renderMarket();
-            if(type === 'suppliers') renderSuppliers();
+            saveAndRender();
         }
     }
 
-    function save() {
-        localStorage.setItem('inv_db', JSON.stringify(db.inventory));
-        localStorage.setItem('market_db', JSON.stringify(db.market));
-        localStorage.setItem('sup_db', JSON.stringify(db.suppliers));
+    function saveAndRender() {
+        localStorage.setItem('inv_db_v2', JSON.stringify(db.inventory));
+        localStorage.setItem('market_db_v2', JSON.stringify(db.market));
+        localStorage.setItem('history_db_v2', JSON.stringify(db.history));
+        localStorage.setItem('sup_db_v2', JSON.stringify(db.suppliers));
+        renderInventory();
+        renderMarket();
+        renderSuppliers();
+        renderHistory();
     }
 
     function toggleTheme() {
@@ -309,11 +334,7 @@
         document.getElementById('themeIcon').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
     }
 
-    window.onload = () => {
-        renderInventory();
-        renderMarket();
-        renderSuppliers();
-    };
+    window.onload = saveAndRender;
 </script>
 
 </body>
