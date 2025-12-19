@@ -4,57 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نظام إدارة المخزن وفواتير السوق</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> [cite: 5]
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet"> [cite: 5]
-    <link rel="manifest" href="manifest.json"> [cite: 84]
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4361ee; --success-color: #2ec4b6; --danger-color: #e63946;
-            --warning-color: #f8961e; --light-color: #f8f9fa; --dark-color: #212529;
-            --bg-color: #f4f7fe; --text-color: #2b2d42; --card-bg: #ffffff;
-            --border-color: #e0e0e0; [cite: 5, 6]
+            --primary-color: #4361ee;
+            --success-color: #2ec4b6;
+            --danger-color: #e63946;
+            --warning-color: #f8961e;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --bg-color: #f4f7fe;
+            --text-color: #2b2d42;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
         }
 
         .dark-mode {
-            --bg-color: #1a1a1a; --text-color: #f8f9fa; --card-bg: #2d2d2d;
-            --border-color: #444; --light-color: #3d3d3d; [cite: 7, 8]
+            --bg-color: #1a1a1a;
+            --text-color: #f8f9fa;
+            --card-bg: #2d2d2d;
+            --border-color: #444;
+            --light-color: #3d3d3d;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; } [cite: 9]
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 20px; transition: 0.3s; } [cite: 10]
-        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); } [cite: 11]
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 20px; transition: 0.3s; }
+        .container { max-width: 1300px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; } [cite: 12]
-        .tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; } [cite: 13, 14]
-        .tab { padding: 12px 20px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; color: #888; } [cite: 14, 15]
-        .tab.active { background: var(--primary-color); color: white; } [cite: 16]
-        .tab-content { display: none; animation: fadeIn 0.3s; } [cite: 17]
-        .tab-content.active { display: block; } [cite: 18]
-
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; background: var(--light-color); padding: 20px; border-radius: 10px; margin-bottom: 20px; } [cite: 19, 20]
-        .input-field { display: flex; flex-direction: column; gap: 5px; } [cite: 20, 21]
-        input, select, textarea { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-color); } [cite: 21, 22]
-
-        .search-area { position: relative; margin-bottom: 20px; display: flex; gap: 10px; } [cite: 22, 23]
-        .search-area input { flex: 1; padding-right: 40px; height: 45px; border: 2px solid var(--primary-color); } [cite: 23, 24]
-        .search-area i { position: absolute; right: 15px; top: 15px; color: var(--primary-color); } [cite: 24, 25]
-
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; } [cite: 25, 26]
-        th { background: var(--primary-color); color: white; padding: 12px; text-align: right; } [cite: 26]
-        td { padding: 12px; border-bottom: 1px solid var(--border-color); } [cite: 27]
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         
-        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; } [cite: 28, 29]
-        .btn-add { background: var(--primary-color); color: white; } [cite: 30]
-        .btn-market { background: var(--success-color); color: white; } [cite: 31]
-        .btn-danger { background: var(--danger-color); color: white; } [cite: 32]
-        .btn-info { background: #4895ef; color: white; } [cite: 33]
+        .tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
+        .tab { padding: 12px 20px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; color: #888; }
+        .tab.active { background: var(--primary-color); color: white; }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
 
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; } [cite: 34]
-        .bg-market { background: #9b59b6; } [cite: 35]
+        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; background: var(--light-color); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .input-field { display: flex; flex-direction: column; gap: 5px; }
+        input, select, textarea { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-color); }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } } [cite: 36, 37]
-        @media print { .no-print { display: none !important; } .container { box-shadow: none; width: 100%; } } [cite: 37, 38]
+        .search-area { position: relative; margin-bottom: 20px; display: flex; gap: 10px; }
+        .search-area input { flex: 1; padding-right: 40px; height: 45px; font-size: 16px; border: 2px solid var(--primary-color); }
+        .search-area i { position: absolute; right: 15px; top: 15px; color: var(--primary-color); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: var(--primary-color); color: white; padding: 12px; text-align: right; }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); }
+        
+        .btn { padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-add { background: var(--primary-color); color: white; }
+        .btn-market { background: var(--success-color); color: white; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-info { background: #4895ef; color: white; }
+
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; color: white; }
+        .bg-market { background: #9b59b6; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media print { .no-print { display: none !important; } .container { box-shadow: none; width: 100%; } }
     </style>
 </head>
 <body>
@@ -66,59 +74,77 @@
     </header>
 
     <div class="tabs no-print">
-        <div class="tab active" onclick="showTab('inventory', event)">📦 المخزن الرئيسي</div> [cite: 54]
-        <div class="tab" onclick="showTab('market', event)">🛒 فواتير السوق</div> [cite: 54]
-        <div class="tab" onclick="showTab('suppliers', event)">🤝 الموردين</div> [cite: 54]
+        <div class="tab active" onclick="showTab('inventory')">📦 المخزن الرئيسي</div>
+        <div class="tab" onclick="showTab('market')">🛒 فواتير السوق</div>
+        <div class="tab" onclick="showTab('suppliers')">🤝 الموردين</div>
     </div>
 
     <div id="inventory-tab" class="tab-content active">
         <div class="search-area no-print">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInventory" placeholder="ابحث عن منتج..." onkeyup="filterInventory()"> [cite: 39]
+            <input type="text" id="searchInventory" placeholder="ابحث عن منتج بالاسم أو المورد..." onkeyup="filterInventory()">
         </div>
+
         <div class="input-grid no-print">
-            <div class="input-field"><label>اسم المنتج</label><input type="text" id="p-name"></div> [cite: 40]
-            <div class="input-field"><label>الكمية</label><input type="number" id="p-qty" value="1"></div> [cite: 40]
-            <div class="input-field"><label>سعر التكلفة</label><input type="number" id="p-cost"></div> [cite: 40]
-            <div class="input-field"><label>المورد</label><select id="p-sup"></select></div> [cite: 40]
+            <div class="input-field"><label>اسم المنتج</label><input type="text" id="p-name"></div>
+            <div class="input-field"><label>الكمية</label><input type="number" id="p-qty" value="1"></div>
+            <div class="input-field"><label>سعر التكلفة</label><input type="number" id="p-cost"></div>
+            <div class="input-field"><label>المورد</label><select id="p-sup"></select></div>
             <div class="input-field" style="justify-content: flex-end;">
-                <button class="btn btn-add" onclick="addToInventory()"><i class="fas fa-plus"></i> إضافة</button>
+                <button class="btn btn-add" onclick="addToInventory()"><i class="fas fa-plus"></i> إضافة للمخزن</button>
             </div>
         </div>
+
         <table>
             <thead>
-                <tr><th>المنتج</th><th>الكمية</th><th>التكلفة</th><th>المورد</th><th>الإجمالي</th><th class="no-print">إجراءات</th></tr>
+                <tr>
+                    <th>المنتج</th>
+                    <th>الكمية</th>
+                    <th>التكلفة</th>
+                    <th>المورد</th>
+                    <th>الإجمالي</th>
+                    <th class="no-print">إجراءات</th>
+                </tr>
             </thead>
-            <tbody id="inventory-list"></tbody> [cite: 41, 42]
+            <tbody id="inventory-list"></tbody>
         </table>
     </div>
 
     <div id="market-tab" class="tab-content">
         <div class="no-print">
-            <h3 style="margin-bottom: 15px; color: var(--success-color);">تسجيل فاتورة شراء</h3> [cite: 43, 44]
+            <h3 style="margin-bottom: 15px; color: var(--success-color);">تسجيل فاتورة شراء من السوق</h3>
             <div class="input-grid">
-                <div class="input-field"><label>الغرض</label><input type="text" id="m-item"></div> [cite: 44]
-                <div class="input-field"><label>الكمية</label><input type="number" id="m-qty" value="1"></div> [cite: 44]
-                <div class="input-field"><label>السعر الإجمالي</label><input type="number" id="m-price"></div> [cite: 44]
-                <div class="input-field"><label>مكان الشراء</label><input type="text" id="m-place"></div> [cite: 44, 45]
+                <div class="input-field"><label>الغرض / المادة</label><input type="text" id="m-item"></div>
+                <div class="input-field"><label>الكمية</label><input type="number" id="m-qty" value="1"></div>
+                <div class="input-field"><label>السعر الإجمالي</label><input type="number" id="m-price"></div>
+                <div class="input-field"><label>مكان الشراء</label><input type="text" id="m-place" placeholder="اسم المحل أو السوق"></div>
                 <div class="input-field" style="justify-content: flex-end;">
-                    <button class="btn btn-market" onclick="addToMarket()"><i class="fas fa-shopping-cart"></i> حفظ</button>
+                    <button class="btn btn-market" onclick="addToMarket()"><i class="fas fa-shopping-cart"></i> حفظ الفاتورة</button>
                 </div>
             </div>
         </div>
+
         <div class="search-area no-print">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchMarket" placeholder="ابحث في الفواتير..." onkeyup="filterMarket()"> [cite: 45, 46]
+            <input type="text" id="searchMarket" placeholder="ابحث في فواتير السوق..." onkeyup="filterMarket()">
         </div>
+
         <table>
             <thead>
-                <tr><th>التاريخ</th><th>المادة</th><th>الكمية</th><th>المكان</th><th>السعر</th><th class="no-print">إجراءات</th></tr>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>المادة</th>
+                    <th>الكمية</th>
+                    <th>المكان</th>
+                    <th>السعر</th>
+                    <th class="no-print">إجراءات</th>
+                </tr>
             </thead>
-            <tbody id="market-list"></tbody> [cite: 47, 48]
+            <tbody id="market-list"></tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" style="text-align: left; font-weight: bold;">مجموع فواتير السوق:</td> [cite: 48, 49]
-                    <td id="market-total-sum" style="font-weight: bold; color: var(--danger-color);">0</td> [cite: 50]
+                    <td colspan="4" style="text-align: left; font-weight: bold;">مجموع فواتير السوق:</td>
+                    <td id="market-total-sum" style="font-weight: bold; color: var(--danger-color);">0</td>
                     <td></td>
                 </tr>
             </tfoot>
@@ -127,143 +153,168 @@
 
     <div id="suppliers-tab" class="tab-content">
         <div class="input-grid no-print">
-            <div class="input-field"><label>اسم المورد</label><input type="text" id="s-name"></div> [cite: 50]
-            <div class="input-field"><label>رقم الهاتف</label><input type="text" id="s-phone"></div> [cite: 51]
-            <button class="btn btn-add" onclick="addSupplier()" style="margin-top: 25px;">إضافة مورد</button> [cite: 51]
+            <div class="input-field"><label>اسم المورد</label><input type="text" id="s-name"></div>
+            <div class="input-field"><label>رقم الهاتف</label><input type="text" id="s-phone"></div>
+            <button class="btn btn-add" onclick="addSupplier()" style="margin-top: 25px;">إضافة مورد</button>
         </div>
         <table>
             <thead><tr><th>المورد</th><th>الهاتف</th><th>إجراءات</th></tr></thead>
-            <tbody id="suppliers-list"></tbody> [cite: 51]
+            <tbody id="suppliers-list"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // قاعدة البيانات المحلية
+    // تخزين البيانات
     let db = {
         inventory: JSON.parse(localStorage.getItem('inv_db')) || [],
         market: JSON.parse(localStorage.getItem('market_db')) || [],
-        suppliers: JSON.parse(localStorage.getItem('sup_db')) || [] [cite: 52, 53]
+        suppliers: JSON.parse(localStorage.getItem('sup_db')) || []
     };
 
-    function showTab(tabId, event) {
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); [cite: 53]
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); [cite: 54]
-        document.getElementById(tabId + '-tab').classList.add('active'); [cite: 54]
-        event.currentTarget.classList.add('active'); [cite: 54]
+    // التبديل بين الأقسام
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(tabId + '-tab').classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
+    // وظائف المخزن
     function addToInventory() {
         const name = document.getElementById('p-name').value;
         const qty = document.getElementById('p-qty').value;
         const cost = document.getElementById('p-cost').value;
-        const sup = document.getElementById('p-sup').value; [cite: 54, 55]
+        const sup = document.getElementById('p-sup').value;
 
-        if(!name || !cost) return alert("أكمل البيانات"); [cite: 55]
-        db.inventory.push({ name, qty, cost, sup, id: Date.now() }); [cite: 56]
-        save(); renderInventory();
-        document.getElementById('p-name').value = ''; [cite: 56]
+        if(!name || !cost) return alert("أكمل البيانات");
+
+        db.inventory.push({ name, qty, cost, sup, id: Date.now() });
+        save();
+        renderInventory();
+        document.getElementById('p-name').value = '';
     }
 
     function renderInventory(data = db.inventory) {
-        const list = document.getElementById('inventory-list'); [cite: 57]
+        const list = document.getElementById('inventory-list');
         list.innerHTML = data.map((p, i) => `
             <tr>
-                <td>${p.name}</td><td>${p.qty}</td><td>${p.cost}</td>
+                <td>${p.name}</td>
+                <td>${p.qty}</td>
+                <td>${p.cost}</td>
                 <td><span class="badge bg-market">${p.sup || 'عام'}</span></td>
                 <td>${(p.qty * p.cost).toFixed(2)}</td>
-                <td class="no-print"><button class="btn btn-danger" onclick="deleteItem('inventory', ${i})"><i class="fas fa-trash"></i></button></td>
+                <td class="no-print">
+                    <button class="btn btn-danger" onclick="deleteItem('inventory', ${i})"><i class="fas fa-trash"></i></button>
+                </td>
             </tr>
-        `).join(''); [cite: 58, 59]
+        `).join('');
     }
 
+    // وظائف فواتير السوق
     function addToMarket() {
         const item = document.getElementById('m-item').value;
         const qty = document.getElementById('m-qty').value;
         const price = document.getElementById('m-price').value;
         const place = document.getElementById('m-place').value;
-        const date = new Date().toLocaleDateString('ar-EG'); [cite: 60, 61]
+        const date = new Date().toLocaleDateString('ar-EG');
 
-        if(!item || !price) return alert("يرجى إدخال اسم المادة والسعر"); [cite: 62]
-        db.market.push({ item, qty, price, place, date, id: Date.now() }); [cite: 62]
-        save(); renderMarket();
-        ['m-item', 'm-price', 'm-place'].forEach(id => document.getElementById(id).value = ''); [cite: 63]
+        if(!item || !price) return alert("يرجى إدخال اسم المادة والسعر");
+
+        db.market.push({ item, qty, price, place, date, id: Date.now() });
+        save();
+        renderMarket();
+        // مسح الحقول
+        ['m-item', 'm-price', 'm-place'].forEach(id => document.getElementById(id).value = '');
     }
 
     function renderMarket(data = db.market) {
-        const list = document.getElementById('market-list'); [cite: 64]
+        const list = document.getElementById('market-list');
         let total = 0;
         list.innerHTML = data.map((m, i) => {
-            total += parseFloat(m.price || 0);
-            return `<tr>
-                <td>${m.date}</td><td>${m.item}</td><td>${m.qty}</td><td>${m.place || 'السوق'}</td>
-                <td>${parseFloat(m.price).toFixed(2)}</td>
-                <td class="no-print"><button class="btn btn-danger" onclick="deleteItem('market', ${i})"><i class="fas fa-trash"></i></button></td>
-            </tr>`
-        }).join(''); [cite: 65, 66, 67]
-        document.getElementById('market-total-sum').innerText = total.toFixed(2) + " دينار"; [cite: 68]
+            total += parseFloat(m.price);
+            return `
+                <tr>
+                    <td>${m.date}</td>
+                    <td>${m.item}</td>
+                    <td>${m.qty}</td>
+                    <td>${m.place || 'السوق'}</td>
+                    <td>${parseFloat(m.price).toFixed(2)}</td>
+                    <td class="no-print">
+                        <button class="btn btn-danger" onclick="deleteItem('market', ${i})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `}).join('');
+        document.getElementById('market-total-sum').innerText = total.toFixed(2) + " دينار";
     }
 
+    // البحث (فلترة)
     function filterInventory() {
-        const val = document.getElementById('searchInventory').value.toLowerCase(); [cite: 68]
-        const filtered = db.inventory.filter(p => p.name.toLowerCase().includes(val) || (p.sup && p.sup.toLowerCase().includes(val))); [cite: 69]
-        renderInventory(filtered); [cite: 70]
+        const val = document.getElementById('searchInventory').value.toLowerCase();
+        const filtered = db.inventory.filter(p => 
+            p.name.toLowerCase().includes(val) || (p.sup && p.sup.toLowerCase().includes(val))
+        );
+        renderInventory(filtered);
     }
 
     function filterMarket() {
-        const val = document.getElementById('searchMarket').value.toLowerCase(); [cite: 70]
-        const filtered = db.market.filter(m => m.item.toLowerCase().includes(val) || (m.place && m.place.toLowerCase().includes(val))); [cite: 71]
-        renderMarket(filtered); [cite: 72]
+        const val = document.getElementById('searchMarket').value.toLowerCase();
+        const filtered = db.market.filter(m => 
+            m.item.toLowerCase().includes(val) || (m.place && m.place.toLowerCase().includes(val))
+        );
+        renderMarket(filtered);
     }
 
+    // الموردين
     function addSupplier() {
-        const name = document.getElementById('s-name').value; [cite: 72]
-        if(!name) return; [cite: 73]
-        db.suppliers.push({ name, phone: document.getElementById('s-phone').value }); [cite: 73]
-        save(); renderSuppliers();
-        document.getElementById('s-name').value = ''; [cite: 73]
+        const name = document.getElementById('s-name').value;
+        if(!name) return;
+        db.suppliers.push({ name, phone: document.getElementById('s-phone').value });
+        save();
+        renderSuppliers();
+        document.getElementById('s-name').value = '';
     }
 
     function renderSuppliers() {
-        const list = document.getElementById('suppliers-list'); [cite: 74]
-        const select = document.getElementById('p-sup'); [cite: 75]
+        const list = document.getElementById('suppliers-list');
+        const select = document.getElementById('p-sup');
         list.innerHTML = db.suppliers.map((s, i) => `
             <tr><td>${s.name}</td><td>${s.phone}</td>
             <td><button class="btn btn-danger" onclick="deleteItem('suppliers', ${i})">حذف</button></td></tr>
-        `).join(''); [cite: 75]
+        `).join('');
         select.innerHTML = '<option value="">اختر مورد...</option>' + 
-            db.suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join(''); [cite: 76]
+            db.suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
     }
 
+    // الحفظ والحذف
     function deleteItem(type, index) {
         if(confirm("هل أنت متأكد؟")) {
-            db[type].splice(index, 1); [cite: 77]
+            db[type].splice(index, 1);
             save();
             if(type === 'inventory') renderInventory();
             if(type === 'market') renderMarket();
-            if(type === 'suppliers') renderSuppliers(); [cite: 78]
+            if(type === 'suppliers') renderSuppliers();
         }
     }
 
     function save() {
-        localStorage.setItem('inv_db', JSON.stringify(db.inventory)); [cite: 79]
-        localStorage.setItem('market_db', JSON.stringify(db.market)); [cite: 80]
-        localStorage.setItem('sup_db', JSON.stringify(db.suppliers)); [cite: 80]
+        localStorage.setItem('inv_db', JSON.stringify(db.inventory));
+        localStorage.setItem('market_db', JSON.stringify(db.market));
+        localStorage.setItem('sup_db', JSON.stringify(db.suppliers));
     }
 
     function toggleTheme() {
-        document.body.classList.toggle('dark-mode'); [cite: 80]
-        const isDark = document.body.classList.contains('dark-mode'); [cite: 81]
-        document.getElementById('themeIcon').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; [cite: 81]
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        document.getElementById('themeIcon').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
     }
 
     window.onload = () => {
-        renderInventory(); renderMarket(); renderSuppliers();
-        // تسجيل الـ Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('./sw.js').then(() => console.log("تطبيق المخزن جاهز للعمل!")); [cite: 2]
-        }
+        renderInventory();
+        renderMarket();
+        renderSuppliers();
     };
 </script>
+
 </body>
 </html>
