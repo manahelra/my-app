@@ -1,0 +1,16 @@
+{
+  "name": "نظام إدارة المخازن",
+  "short_name": "المخزن",
+  "description": "نظام احترافي لإدارة المنتجات والموردين والفواتير",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#4361ee",
+  "theme_color": "#4361ee",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
