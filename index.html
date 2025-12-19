@@ -63,6 +63,7 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; color: white; }
         .bg-buy { background: #5e60ce; }
         .bg-sell { background: #4ea8de; }
+        .bg-total { background: #2a9d8f; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @media print { .no-print { display: none !important; } .container { box-shadow: none; width: 100%; } }
@@ -91,7 +92,7 @@
     <div id="inventory-tab" class="tab-content active">
         <div class="input-grid no-print">
             <div class="input-field"><label>المنتج</label><input type="text" id="p-name"></div>
-            <div class="input-field"><label>الكمية</label><input type="number" id="p-qty"></div>
+            <div class="input-field"><label>الكمية</label><input type="number" id="p-qty" value="1"></div>
             <div class="input-field"><label>سعر الشراء</label><input type="number" id="p-buy"></div>
             <div class="input-field"><label>سعر البيع</label><input type="number" id="p-sell"></div>
             <div class="input-field"><label>المورد</label><select id="p-sup"></select></div>
@@ -104,8 +105,9 @@
                 <tr>
                     <th>المنتج</th>
                     <th>الكمية</th>
-                    <th>شراء</th>
-                    <th>بيع</th>
+                    <th>سعر الشراء</th>
+                    <th>الإجمالي (شراء)</th>
+                    <th>بيع الفرادي</th>
                     <th>المورد</th>
                     <th class="no-print">إجراءات</th>
                 </tr>
@@ -117,8 +119,8 @@
     <div id="market-tab" class="tab-content">
         <div class="input-grid no-print">
             <div class="input-field"><label>المادة</label><input type="text" id="m-item"></div>
-            <div class="input-field"><label>الكمية</label><input type="number" id="m-qty"></div>
-            <div class="input-field"><label>السعر الكلي</label><input type="number" id="m-price"></div>
+            <div class="input-field"><label>الكمية</label><input type="number" id="m-qty" value="1"></div>
+            <div class="input-field"><label>سعر القطعة</label><input type="number" id="m-price"></div>
             <div class="input-field"><label>المكان</label><input type="text" id="m-place"></div>
             <div class="input-field" style="justify-content: flex-end; flex-direction: row; gap: 5px;">
                 <button class="btn btn-market" onclick="addToMarket()"><i class="fas fa-plus"></i> إضافة للجدول</button>
@@ -130,7 +132,8 @@
                 <tr>
                     <th>المادة</th>
                     <th>الكمية</th>
-                    <th>السعر</th>
+                    <th>سعر القطعة</th>
+                    <th>المجموع الإجمالي</th>
                     <th>المكان</th>
                     <th class="no-print">إجراءات</th>
                 </tr>
@@ -182,29 +185,26 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById(tabId + '-tab').classList.add('active');
         event.currentTarget.classList.add('active');
-        // مسح البحث عند الانتقال بين التبويبات
         document.getElementById('globalSearch').value = '';
         filterTables();
     }
 
-    // --- ميزة البحث ---
     function filterTables() {
         const searchValue = document.getElementById('globalSearch').value.toLowerCase();
         const activeTab = document.querySelector('.tab-content.active');
         const rows = activeTab.querySelectorAll('tbody tr');
-
         rows.forEach(row => {
             const text = row.innerText.toLowerCase();
             row.style.display = text.includes(searchValue) ? '' : 'none';
         });
     }
 
-    // --- المخزن ---
+    // --- المخزن (تعديل العرض) ---
     function addToInventory() {
         const name = document.getElementById('p-name').value;
-        const qty = document.getElementById('p-qty').value;
-        const buy = document.getElementById('p-buy').value;
-        const sell = document.getElementById('p-sell').value;
+        const qty = parseFloat(document.getElementById('p-qty').value) || 0;
+        const buy = parseFloat(document.getElementById('p-buy').value) || 0;
+        const sell = parseFloat(document.getElementById('p-sell').value) || 0;
         const sup = document.getElementById('p-sup').value;
 
         if(!name || !buy || !sell) return alert("أكمل البيانات الأساسية");
@@ -214,22 +214,6 @@
         ['p-name', 'p-qty', 'p-buy', 'p-sell'].forEach(id => document.getElementById(id).value = '');
     }
 
-    function editInventory(index) {
-        const item = db.inventory[index];
-        const newName = prompt("تعديل اسم المنتج:", item.name);
-        const newQty = prompt("تعديل الكمية:", item.qty);
-        const newBuy = prompt("تعديل سعر الشراء:", item.buy);
-        const newSell = prompt("تعديل سعر البيع:", item.sell);
-
-        if (newName && newQty !== null && newBuy !== null && newSell !== null) {
-            db.inventory[index].name = newName;
-            db.inventory[index].qty = newQty;
-            db.inventory[index].buy = newBuy;
-            db.inventory[index].sell = newSell;
-            saveAndRender();
-        }
-    }
-
     function renderInventory() {
         const list = document.getElementById('inventory-list');
         list.innerHTML = db.inventory.map((p, i) => `
@@ -237,6 +221,7 @@
                 <td><b>${p.name}</b></td>
                 <td>${p.qty}</td>
                 <td><span class="badge bg-buy">${p.buy}</span></td>
+                <td><span class="badge bg-total">${(p.qty * p.buy).toFixed(2)}</span></td>
                 <td><span class="badge bg-sell">${p.sell}</span></td>
                 <td>${p.sup || 'عام'}</td>
                 <td class="no-print">
@@ -247,11 +232,11 @@
         `).join('');
     }
 
-    // --- السوق والسجل ---
+    // --- السوق (تعديل العرض والحساب) ---
     function addToMarket() {
         const item = document.getElementById('m-item').value;
-        const qty = document.getElementById('m-qty').value;
-        const price = document.getElementById('m-price').value;
+        const qty = parseFloat(document.getElementById('m-qty').value) || 1;
+        const price = parseFloat(document.getElementById('m-price').value) || 0;
         const place = document.getElementById('m-place').value;
 
         if(!item || !price) return alert("أدخل اسم المادة والسعر");
@@ -261,39 +246,6 @@
         ['m-item', 'm-qty', 'm-price', 'm-place'].forEach(id => document.getElementById(id).value = '');
     }
 
-    function editMarket(index) {
-        const item = db.market[index];
-        const newName = prompt("تعديل المادة:", item.item);
-        const newQty = prompt("تعديل الكمية:", item.qty);
-        const newPrice = prompt("تعديل السعر:", item.price);
-        const newPlace = prompt("تعديل المكان:", item.place);
-
-        if (newName && newQty !== null && newPrice !== null) {
-            db.market[index].item = newName;
-            db.market[index].qty = newQty;
-            db.market[index].price = newPrice;
-            db.market[index].place = newPlace;
-            saveAndRender();
-        }
-    }
-
-    function saveMarketInvoice() {
-        if(db.market.length === 0) return alert("الجدول فارغ!");
-        
-        const total = db.market.reduce((sum, item) => sum + parseFloat(item.price), 0);
-        const invoice = {
-            date: new Date().toLocaleString('ar-EG'),
-            timestamp: Date.now(),
-            items: [...db.market],
-            total: total.toFixed(2)
-        };
-
-        db.history.unshift(invoice);
-        db.market = []; // تفريغ جدول السوق بعد الحفظ
-        saveAndRender();
-        alert("تم حفظ الفاتورة في السجل بنجاح!");
-    }
-
     function renderMarket() {
         const list = document.getElementById('market-list');
         list.innerHTML = db.market.map((m, i) => `
@@ -301,6 +253,7 @@
                 <td>${m.item}</td>
                 <td>${m.qty}</td>
                 <td>${m.price}</td>
+                <td style="font-weight:bold; color:var(--primary-color);">${(m.qty * m.price).toFixed(2)}</td>
                 <td>${m.place}</td>
                 <td class="no-print">
                     <button class="btn btn-edit" onclick="editMarket(${i})" title="تعديل"><i class="fas fa-edit"></i></button>
@@ -310,6 +263,50 @@
         `).join('');
     }
 
+    function saveMarketInvoice() {
+        if(db.market.length === 0) return alert("الجدول فارغ!");
+        
+        // حساب الإجمالي بناءً على (الكمية × السعر) لكل صنف
+        const total = db.market.reduce((sum, item) => sum + (item.qty * item.price), 0);
+        const invoice = {
+            date: new Date().toLocaleString('ar-EG'),
+            timestamp: Date.now(),
+            items: [...db.market],
+            total: total.toFixed(2)
+        };
+
+        db.history.unshift(invoice);
+        db.market = []; 
+        saveAndRender();
+        alert("تم حفظ الفاتورة بنجاح!");
+    }
+
+    // --- تعديل وظيفة التعديل لتشمل الكمية والسعر ---
+    function editInventory(index) {
+        const item = db.inventory[index];
+        const newName = prompt("تعديل اسم المنتج:", item.name);
+        const newQty = prompt("تعديل الكمية:", item.qty);
+        const newBuy = prompt("تعديل سعر الشراء:", item.buy);
+        const newSell = prompt("تعديل سعر البيع:", item.sell);
+
+        if (newName && newQty !== null && newBuy !== null && newSell !== null) {
+            db.inventory[index] = { ...item, name: newName, qty: parseFloat(newQty), buy: parseFloat(newBuy), sell: parseFloat(newSell) };
+            saveAndRender();
+        }
+    }
+
+    function editMarket(index) {
+        const item = db.market[index];
+        const newName = prompt("تعديل المادة:", item.item);
+        const newQty = prompt("تعديل الكمية:", item.qty);
+        const newPrice = prompt("تعديل سعر القطعة:", item.price);
+        if (newName && newQty !== null && newPrice !== null) {
+            db.market[index] = { ...item, item: newName, qty: parseFloat(newQty), price: parseFloat(newPrice) };
+            saveAndRender();
+        }
+    }
+
+    // --- باقي الوظائف (كما هي) ---
     function renderHistory() {
         const list = document.getElementById('history-list');
         list.innerHTML = db.history.map((h, i) => `
@@ -327,19 +324,19 @@
         const inv = db.history[index];
         let details = `فاتورة بتاريخ: ${inv.date}\n\n`;
         inv.items.forEach(item => {
-            details += `- ${item.item} | الكمية: ${item.qty} | السعر: ${item.price}\n`;
+            details += `- ${item.item} | الكمية: ${item.qty} | السعر: ${item.price} | المجموع: ${(item.qty * item.price).toFixed(2)}\n`;
         });
-        details += `\nالإجمالي: ${inv.total}`;
+        details += `\nإجمالي الفاتورة: ${inv.total}`;
         alert(details);
     }
 
-    // --- الموردين ---
     function addSupplier() {
         const name = document.getElementById('s-name').value;
         if(!name) return;
         db.suppliers.push({ name, phone: document.getElementById('s-phone').value });
         saveAndRender();
         document.getElementById('s-name').value = '';
+        document.getElementById('s-phone').value = '';
     }
 
     function renderSuppliers() {
@@ -353,7 +350,6 @@
             db.suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
     }
 
-    // --- الوظائف العامة ---
     function deleteItem(type, index) {
         if(confirm("هل أنت متأكد من الحذف؟")) {
             db[type].splice(index, 1);
