@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>النظام المحاسبي المتكامل - النسخة النهائية</title>
+    <title>نظام الكاشير المطور - نسخة التعديل الشامل</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -56,7 +56,7 @@
 
 <div class="container">
     <div class="header-top no-print" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <button class="btn btn-primary" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> وضع ليلي/نهاري</button>
+        <button class="btn btn-primary" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> تبديل المظهر</button>
         <div class="bismillah">بسم الله الرحمن الرحيم</div>
         <div style="width:120px"></div>
     </div>
@@ -78,13 +78,14 @@
 
     <div id="pos-tab" class="tab-content active">
         <div class="input-group no-print">
-            <input type="text" id="pos-in" placeholder="اسم الصنف للبيع..." onkeyup="searchPOS(this.value)">
+            <input type="hidden" id="pos-edit-id">
+            <input type="text" id="pos-in" placeholder="ابحث عن صنف لبيعه..." onkeyup="searchPOS(this.value)">
             <input type="number" id="pos-q" value="1" min="1" style="max-width: 80px;">
-            <button class="btn btn-success" onclick="sellNow()">إتمام البيع</button>
+            <button class="btn btn-success" id="pos-btn" onclick="sellNow()">إتمام البيع</button>
             <div id="pos-sug" class="suggestions"></div>
         </div>
         <table>
-            <thead><tr><th>الوقت</th><th>الصنف</th><th>الكمية</th><th>سعر الحبة</th><th>الإجمالي</th></tr></thead>
+            <thead><tr><th>الوقت</th><th>الصنف</th><th>الكمية</th><th>سعر الحبة</th><th>الإجمالي</th><th>إجراء</th></tr></thead>
             <tbody id="today-sales-body"></tbody>
         </table>
     </div>
@@ -103,7 +104,7 @@
             <input type="text" id="inv-search-input" placeholder="بحث سريع في المخزن..." onkeyup="renderInventory(this.value)">
         </div>
         <table>
-            <thead><tr><th>الصنف</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th><th>إجمالي القيمة</th><th>إجراء</th></tr></thead>
+            <thead><tr><th>الصنف</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>إجمالي القيمة</th><th>إجراء</th></tr></thead>
             <tbody id="inventory-body"></tbody>
         </table>
     </div>
@@ -111,11 +112,11 @@
     <div id="shopping-tab" class="tab-content">
         <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
             <h3>قائمة المشتريات</h3>
-            <button class="btn btn-primary no-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
+            <button class="btn btn-primary no-print" onclick="window.print()">طباعة القائمة</button>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="no-print"><h4>النواقص التلقائية</h4><table id="auto-low-body"></table></div>
-            <div><h4>قائمة المشتريات المعتمدة</h4><table id="final-shop-body"></table></div>
+            <div><h4>قائمة السوق المعتمدة</h4><table id="final-shop-body"></table></div>
         </div>
     </div>
 
@@ -138,16 +139,16 @@
 </div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('mega_pos_final_v12')) || {
+    let db = JSON.parse(localStorage.getItem('mega_pos_v13')) || {
         inventory: [], expenses: [], today: [], archive: [], shopping: [],
         lastDate: new Date().toLocaleDateString()
     };
 
-    function save() { localStorage.setItem('mega_pos_final_v12', JSON.stringify(db)); renderAll(); }
+    function save() { localStorage.setItem('mega_pos_v13', JSON.stringify(db)); renderAll(); }
 
     function toggleDarkMode() {
         document.body.classList.toggle('dark-mode');
-        localStorage.setItem('darkV12', document.body.classList.contains('dark-mode'));
+        localStorage.setItem('darkV13', document.body.classList.contains('dark-mode'));
     }
 
     function showTab(id) {
@@ -157,7 +158,7 @@
         event.currentTarget.classList.add('active');
     }
 
-    // الكاشير
+    // --- الكاشير (إضافة وتعديل وحذف) ---
     function searchPOS(v) {
         const box = document.getElementById('pos-sug');
         if(!v) { box.style.display='none'; return; }
@@ -168,21 +169,63 @@
     function setPOS(n) { document.getElementById('pos-in').value = n; document.getElementById('pos-sug').style.display='none'; }
 
     function sellNow() {
+        const editId = document.getElementById('pos-edit-id').value;
         const n = document.getElementById('pos-in').value;
         const q = parseInt(document.getElementById('pos-q').value) || 1;
         const i = db.inventory.find(x => x.name === n);
-        if(i && i.qty >= q) {
+
+        if(!i) { alert("الصنف غير موجود!"); return; }
+
+        if(editId) {
+            // منطق التعديل: إرجاع القديم ثم خصم الجديد
+            const oldSale = db.today.find(s => s.id == editId);
+            const oldItem = db.inventory.find(inv => inv.name === oldSale.name);
+            oldItem.qty += oldSale.qty; // استرجاع الكمية القديمة للمخزن
+
+            if(i.qty < q) { alert("الكمية الجديدة غير متوفرة!"); oldItem.qty -= oldSale.qty; return; }
+            
+            i.qty -= q; // خصم الكمية الجديدة
+            const idx = db.today.findIndex(s => s.id == editId);
+            db.today[idx] = { ...oldSale, name: n, qty: q, unitPrice: i.sell, totalPrice: i.sell * q };
+            
+            document.getElementById('pos-edit-id').value = "";
+            document.getElementById('pos-btn').innerText = "إتمام البيع";
+            document.getElementById('pos-btn').className = "btn btn-success";
+        } else {
+            // إضافة جديدة
+            if(i.qty < q) { alert("الكمية غير كافية!"); return; }
             i.qty -= q;
             db.today.unshift({ 
+                id: Date.now(),
                 time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 
                 name: n, qty: q, unitPrice: i.sell, totalPrice: i.sell * q 
             });
-            document.getElementById('pos-in').value = '';
-            save();
-        } else { alert("الكمية غير كافية!"); }
+        }
+        document.getElementById('pos-in').value = '';
+        document.getElementById('pos-q').value = '1';
+        save();
     }
 
-    // المخزن
+    function editSale(id) {
+        const sale = db.today.find(s => s.id == id);
+        document.getElementById('pos-edit-id').value = sale.id;
+        document.getElementById('pos-in').value = sale.name;
+        document.getElementById('pos-q').value = sale.qty;
+        document.getElementById('pos-btn').innerText = "تحديث البيعة";
+        document.getElementById('pos-btn').className = "btn btn-warning";
+    }
+
+    function deleteSale(id) {
+        if(confirm("هل تريد إلغاء هذه البيعة وإرجاع الكمية للمخزن؟")) {
+            const sale = db.today.find(s => s.id == id);
+            const item = db.inventory.find(i => i.name === sale.name);
+            if(item) item.qty += sale.qty;
+            db.today = db.today.filter(s => s.id != id);
+            save();
+        }
+    }
+
+    // --- المخزن والمصروفات (نفس المنطق السابق المستقر) ---
     function saveInventory() {
         const id = document.getElementById('inv-edit-id').value;
         const n = document.getElementById('inv-n').value, q = parseInt(document.getElementById('inv-q').value),
@@ -204,16 +247,11 @@
     function editInv(id) {
         const i = db.inventory.find(x => x.id == id);
         document.getElementById('inv-edit-id').value = i.id;
-        document.getElementById('inv-n').value = i.name;
-        document.getElementById('inv-q').value = i.qty;
-        document.getElementById('inv-m').value = i.min;
-        document.getElementById('inv-buy').value = i.buy;
-        document.getElementById('inv-sell').value = i.sell;
-        document.getElementById('inv-btn').innerText = "تحديث الآن";
-        showTab('inv');
+        document.getElementById('inv-n').value = i.name; document.getElementById('inv-q').value = i.qty;
+        document.getElementById('inv-m').value = i.min; document.getElementById('inv-buy').value = i.buy;
+        document.getElementById('inv-sell').value = i.sell; document.getElementById('inv-btn').innerText = "تحديث الآن";
     }
 
-    // المصروفات
     function saveExpense() {
         const id = document.getElementById('exp-edit-id').value;
         const n = document.getElementById('exp-n').value, a = parseFloat(document.getElementById('exp-a').value);
@@ -239,18 +277,15 @@
     }
 
     function renderInventory(f = "") {
-        document.getElementById('inventory-body').innerHTML = db.inventory.filter(i => i.name.includes(f)).map(i => {
-            const stockVal = i.qty * i.buy;
-            return `
+        document.getElementById('inventory-body').innerHTML = db.inventory.filter(i => i.name.includes(f)).map(i => `
             <tr>
                 <td>${i.name}</td><td>${i.qty}</td><td>${i.buy}</td><td>${i.sell}</td>
-                <td style="font-weight:bold">${stockVal.toFixed(2)}</td>
+                <td style="font-weight:bold">${(i.qty * i.buy).toFixed(2)}</td>
                 <td>
                     <button class="btn btn-warning" style="display:inline; padding:5px" onclick="editInv(${i.id})">تعديل</button>
                     <button class="btn btn-danger" style="display:inline; padding:5px" onclick="if(confirm('حذف؟')){db.inventory=db.inventory.filter(x=>x.id!=${i.id});save();}">حذف</button>
                 </td>
-            </tr>`;
-        }).join('');
+            </tr>`).join('');
     }
 
     function renderAll() {
@@ -264,15 +299,21 @@
         document.getElementById('stat-inv-val').innerText = invTotalVal.toFixed(2);
 
         document.getElementById('today-sales-body').innerHTML = db.today.map(i => `
-            <tr><td>${i.time}</td><td>${i.name}</td><td>${i.qty}</td><td>${i.unitPrice}</td><td>${i.totalPrice.toFixed(2)}</td></tr>
-        `).join('');
+            <tr>
+                <td>${i.time}</td><td>${i.name}</td><td>${i.qty}</td><td>${i.unitPrice}</td>
+                <td style="font-weight:bold; color:var(--primary)">${i.totalPrice.toFixed(2)}</td>
+                <td>
+                    <button class="btn btn-warning" style="display:inline; padding:5px" onclick="editSale(${i.id})"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-danger" style="display:inline; padding:5px" onclick="deleteSale(${i.id})"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`).join('');
 
         document.getElementById('expense-body').innerHTML = db.expenses.map(e => `
             <tr><td>${e.name}</td><td>${e.amt}</td><td><button class="btn btn-warning" onclick="editExp(${e.id})">تعديل</button></td></tr>
         `).join('');
         
         const low = db.inventory.filter(i => i.qty <= i.min);
-        document.getElementById('auto-low-body').innerHTML = low.map(i => `<tr><td>${i.name}</td><td><button class="btn btn-success" onclick="toggleShop(${i.id})">نقل ➔</button></td></tr>`).join('');
+        document.getElementById('auto-low-body').innerHTML = low.map(i => `<tr><td>${i.name}</td><td><button class="btn btn-success" onclick="toggleShop(${i.id})">نقل</button></td></tr>`).join('');
         const fin = db.inventory.filter(i => db.shopping.includes(i.id));
         document.getElementById('final-shop-body').innerHTML = fin.map(i => `<tr><td>${i.name}</td><td>✅</td><td><button onclick="toggleShop(${i.id})">X</button></td></tr>`).join('');
         
@@ -286,7 +327,7 @@
     }
 
     window.onload = () => {
-        if(localStorage.getItem('darkV12') === 'true') document.body.classList.add('dark-mode');
+        if(localStorage.getItem('darkV13') === 'true') document.body.classList.add('dark-mode');
         renderAll();
     };
 </script>
