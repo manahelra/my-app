@@ -3,379 +3,292 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة المخزن المتطور</title>
+    <title>النظام المحاسبي المتكامل - النسخة النهائية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4361ee;
-            --success-color: #2ec4b6;
-            --danger-color: #e63946;
-            --warning-color: #f8961e;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --bg-color: #f4f7fe;
-            --text-color: #2b2d42;
-            --card-bg: #ffffff;
-            --border-color: #e0e0e0;
+            --primary: #4361ee; --success: #2ec4b6; --danger: #e63946;
+            --warning: #f8961e; --bg: #f4f7fe; --card: #ffffff; --text: #2b2d42; --border: #eee;
         }
-
         .dark-mode {
-            --bg-color: #1a1a1a;
-            --text-color: #f8f9fa;
-            --card-bg: #2d2d2d;
-            --border-color: #444;
-            --light-color: #3d3d3d;
+            --bg: #121212; --card: #1e1e1e; --text: #e0e0e0; --border: #333;
         }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; transition: 0.2s; }
+        body { background-color: var(--bg); color: var(--text); padding: 15px; }
+        .container { max-width: 1300px; margin: 0 auto; }
+        .bismillah { text-align: center; font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 20px; transition: 0.3s; }
-        .container { max-width: 1400px; margin: 0 auto; background: var(--card-bg); padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--primary); }
+        .stat-card p { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-top: 5px; }
 
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        
-        .tabs { display: flex; gap: 5px; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; flex-wrap: wrap; }
-        .tab { padding: 12px 15px; cursor: pointer; border-radius: 8px 8px 0 0; font-weight: bold; color: #888; transition: 0.3s; }
-        .tab.active { background: var(--primary-color); color: white; }
-        .tab-content { display: none; animation: fadeIn 0.3s; }
+        /* Tabs */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; background: var(--card); padding: 10px; border-radius: 12px; }
+        .tab { padding: 12px 20px; cursor: pointer; border-radius: 8px; font-weight: bold; border: none; background: rgba(0,0,0,0.05); color: var(--text); white-space: nowrap; }
+        .tab.active { background: var(--primary); color: white; }
+        .tab-content { display: none; background: var(--card); padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .tab-content.active { display: block; }
 
-        .search-bar { margin-bottom: 20px; position: relative; }
-        .search-bar input { width: 100%; padding: 12px 40px 12px 12px; border-radius: 8px; border: 2px solid var(--primary-color); outline: none; }
-        .search-bar i { position: absolute; right: 15px; top: 15px; color: var(--primary-color); }
+        /* Forms */
+        .input-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; background: rgba(0,0,0,0.02); padding: 15px; border-radius: 10px; position: relative; border: 1px solid var(--border); }
+        input { padding: 10px; border: 1px solid var(--border); border-radius: 8px; flex: 1; min-width: 130px; background: var(--card); color: var(--text); }
+        .btn { padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 6px; color: white; }
+        .btn-primary { background: var(--primary); }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); }
 
-        .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; background: var(--light-color); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
-        .input-field { display: flex; flex-direction: column; gap: 5px; }
-        label { font-size: 0.9rem; font-weight: bold; }
-        input, select, textarea { padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; background: var(--card-bg); color: var(--text-color); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: center; }
+        th { background: rgba(0,0,0,0.03); }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: var(--card-bg); }
-        th { background: var(--primary-color); color: white; padding: 12px; text-align: right; }
-        td { padding: 12px; border-bottom: 1px solid var(--border-color); }
-        
-        .btn { padding: 8px 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
-        .btn-add { background: var(--primary-color); color: white; }
-        .btn-market { background: var(--success-color); color: white; }
-        .btn-danger { background: var(--danger-color); color: white; }
-        .btn-edit { background: var(--warning-color); color: white; }
-        .btn-info { background: #4895ef; color: white; }
+        /* Suggestions */
+        .suggestions { position: absolute; top: 70px; right: 15px; left: 15px; background: var(--card); border: 1px solid var(--border); z-index: 1000; border-radius: 8px; display: none; max-height: 200px; overflow-y: auto; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        .sug-item { padding: 12px; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+        .sug-item:hover { background: var(--primary); color: white; }
 
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; color: white; }
-        .bg-buy { background: #5e60ce; }
-        .bg-sell { background: #4ea8de; }
-        .bg-total { background: #2a9d8f; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @media print { .no-print { display: none !important; } .container { box-shadow: none; width: 100%; } }
+        @media print { .no-print { display: none !important; } .tab-content { display: none !important; } #shopping-tab { display: block !important; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <header class="no-print">
-        <h1><i class="fas fa-store"></i> نظام الإدارة المطور</h1>
-        <button onclick="toggleTheme()" class="btn btn-info" id="themeIcon"><i class="fas fa-moon"></i></button>
-    </header>
+    <div class="header-top no-print" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <button class="btn btn-primary" onclick="toggleDarkMode()"><i class="fas fa-moon"></i> وضع ليلي/نهاري</button>
+        <div class="bismillah">بسم الله الرحمن الرحيم</div>
+        <div style="width:120px"></div>
+    </div>
+
+    <div class="stats-grid no-print">
+        <div class="stat-card"><h3>مبيعات اليوم</h3><p id="stat-today">0</p></div>
+        <div class="stat-card"><h3>المصروفات</h3><p id="stat-exp">0</p></div>
+        <div class="stat-card"><h3>صافي الربح</h3><p id="stat-profit" style="color:var(--success)">0</p></div>
+        <div class="stat-card"><h3>قيمة المخزن</h3><p id="stat-inv-val" style="color:var(--warning)">0</p></div>
+    </div>
 
     <div class="tabs no-print">
-        <div class="tab active" onclick="showTab('inventory')">📦 المخزن</div>
-        <div class="tab" onclick="showTab('market')">🛒 السوق</div>
-        <div class="tab" onclick="showTab('history')">📜 سجل الفواتير</div>
-        <div class="tab" onclick="showTab('suppliers')">🤝 الموردين</div>
+        <button class="tab active" onclick="showTab('pos')">🛒 الكاشير</button>
+        <button class="tab" onclick="showTab('inv')">📦 المخزن</button>
+        <button class="tab" onclick="showTab('shopping')">📝 المشتريات</button>
+        <button class="tab" onclick="showTab('exp')">💸 المصروفات</button>
+        <button class="tab" onclick="showTab('archive')">📜 الأرشيف</button>
     </div>
 
-    <div class="search-bar no-print">
-        <i class="fas fa-search"></i>
-        <input type="text" id="globalSearch" placeholder="بحث سريع في الجدول الحالي..." onkeyup="filterTables()">
-    </div>
-
-    <div id="inventory-tab" class="tab-content active">
-        <div class="input-grid no-print">
-            <div class="input-field"><label>المنتج</label><input type="text" id="p-name"></div>
-            <div class="input-field"><label>الكمية</label><input type="number" id="p-qty" value="1"></div>
-            <div class="input-field"><label>سعر الشراء</label><input type="number" id="p-buy"></div>
-            <div class="input-field"><label>سعر البيع</label><input type="number" id="p-sell"></div>
-            <div class="input-field"><label>المورد</label><select id="p-sup"></select></div>
-            <div class="input-field" style="justify-content: flex-end;">
-                <button class="btn btn-add" onclick="addToInventory()"><i class="fas fa-plus"></i> إضافة</button>
-            </div>
+    <div id="pos-tab" class="tab-content active">
+        <div class="input-group no-print">
+            <input type="text" id="pos-in" placeholder="اسم الصنف للبيع..." onkeyup="searchPOS(this.value)">
+            <input type="number" id="pos-q" value="1" min="1" style="max-width: 80px;">
+            <button class="btn btn-success" onclick="sellNow()">إتمام البيع</button>
+            <div id="pos-sug" class="suggestions"></div>
         </div>
         <table>
-            <thead>
-                <tr>
-                    <th>المنتج</th>
-                    <th>الكمية</th>
-                    <th>سعر الشراء</th>
-                    <th>الإجمالي (شراء)</th>
-                    <th>بيع الفرادي</th>
-                    <th>المورد</th>
-                    <th class="no-print">إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="inventory-list"></tbody>
+            <thead><tr><th>الوقت</th><th>الصنف</th><th>الكمية</th><th>سعر الحبة</th><th>الإجمالي</th></tr></thead>
+            <tbody id="today-sales-body"></tbody>
         </table>
     </div>
 
-    <div id="market-tab" class="tab-content">
-        <div class="input-grid no-print">
-            <div class="input-field"><label>المادة</label><input type="text" id="m-item"></div>
-            <div class="input-field"><label>الكمية</label><input type="number" id="m-qty" value="1"></div>
-            <div class="input-field"><label>سعر القطعة</label><input type="number" id="m-price"></div>
-            <div class="input-field"><label>المكان</label><input type="text" id="m-place"></div>
-            <div class="input-field" style="justify-content: flex-end; flex-direction: row; gap: 5px;">
-                <button class="btn btn-market" onclick="addToMarket()"><i class="fas fa-plus"></i> إضافة للجدول</button>
-                <button class="btn btn-info" onclick="saveMarketInvoice()"><i class="fas fa-save"></i> حفظ في السجل</button>
-            </div>
+    <div id="inv-tab" class="tab-content">
+        <div class="input-group">
+            <input type="hidden" id="inv-edit-id">
+            <input type="text" id="inv-n" placeholder="اسم المنتج">
+            <input type="number" id="inv-q" placeholder="الكمية">
+            <input type="number" id="inv-m" placeholder="حد النقص">
+            <input type="number" id="inv-buy" placeholder="سعر الشراء">
+            <input type="number" id="inv-sell" placeholder="سعر البيع">
+            <button class="btn btn-primary" id="inv-btn" onclick="saveInventory()">حفظ في المخزن</button>
         </div>
-        <table id="market-table">
-            <thead>
-                <tr>
-                    <th>المادة</th>
-                    <th>الكمية</th>
-                    <th>سعر القطعة</th>
-                    <th>المجموع الإجمالي</th>
-                    <th>المكان</th>
-                    <th class="no-print">إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="market-list"></tbody>
-        </table>
-    </div>
-
-    <div id="history-tab" class="tab-content">
-        <h3>سجل الفواتير المحفوظة</h3>
-        <br>
+        <div class="input-group no-print">
+            <input type="text" id="inv-search-input" placeholder="بحث سريع في المخزن..." onkeyup="renderInventory(this.value)">
+        </div>
         <table>
-            <thead>
-                <tr>
-                    <th>التاريخ والوقت</th>
-                    <th>عدد المواد</th>
-                    <th>إجمالي المبلغ</th>
-                    <th>التفاصيل</th>
-                    <th>إجراءات</th>
-                </tr>
-            </thead>
-            <tbody id="history-list"></tbody>
+            <thead><tr><th>الصنف</th><th>الكمية</th><th>سعر الشراء</th><th>سعر البيع</th><th>إجمالي القيمة</th><th>إجراء</th></tr></thead>
+            <tbody id="inventory-body"></tbody>
         </table>
     </div>
 
-    <div id="suppliers-tab" class="tab-content">
-        <div class="input-grid no-print">
-            <div class="input-field"><label>اسم المورد</label><input type="text" id="s-name"></div>
-            <div class="input-field"><label>الهاتف</label><input type="text" id="s-phone"></div>
-            <button class="btn btn-add" onclick="addSupplier()" style="margin-top: 25px;">إضافة مورد</button>
+    <div id="shopping-tab" class="tab-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+            <h3>قائمة المشتريات</h3>
+            <button class="btn btn-primary no-print" onclick="window.print()"><i class="fas fa-print"></i> طباعة</button>
         </div>
-        <table id="suppliers-table">
-            <thead><tr><th>المورد</th><th>الهاتف</th><th>حذف</th></tr></thead>
-            <tbody id="suppliers-list"></tbody>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="no-print"><h4>النواقص التلقائية</h4><table id="auto-low-body"></table></div>
+            <div><h4>قائمة المشتريات المعتمدة</h4><table id="final-shop-body"></table></div>
+        </div>
+    </div>
+
+    <div id="exp-tab" class="tab-content">
+        <div class="input-group">
+            <input type="hidden" id="exp-edit-id">
+            <input type="text" id="exp-n" placeholder="بيان المصرف">
+            <input type="number" id="exp-a" placeholder="المبلغ">
+            <button class="btn btn-danger" id="exp-btn" onclick="saveExpense()">حفظ المصروف</button>
+        </div>
+        <table>
+            <thead><tr><th>البيان</th><th>المبلغ</th><th>إجراء</th></tr></thead>
+            <tbody id="expense-body"></tbody>
         </table>
+    </div>
+
+    <div id="archive-tab" class="tab-content">
+        <div id="archive-list"></div>
     </div>
 </div>
 
 <script>
-    let db = {
-        inventory: JSON.parse(localStorage.getItem('inv_db_v2')) || [],
-        market: JSON.parse(localStorage.getItem('market_db_v2')) || [],
-        history: JSON.parse(localStorage.getItem('history_db_v2')) || [],
-        suppliers: JSON.parse(localStorage.getItem('sup_db_v2')) || []
+    let db = JSON.parse(localStorage.getItem('mega_pos_final_v12')) || {
+        inventory: [], expenses: [], today: [], archive: [], shopping: [],
+        lastDate: new Date().toLocaleDateString()
     };
 
-    function showTab(tabId) {
+    function save() { localStorage.setItem('mega_pos_final_v12', JSON.stringify(db)); renderAll(); }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkV12', document.body.classList.contains('dark-mode'));
+    }
+
+    function showTab(id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById(tabId + '-tab').classList.add('active');
+        document.getElementById(id + '-tab').classList.add('active');
         event.currentTarget.classList.add('active');
-        document.getElementById('globalSearch').value = '';
-        filterTables();
     }
 
-    function filterTables() {
-        const searchValue = document.getElementById('globalSearch').value.toLowerCase();
-        const activeTab = document.querySelector('.tab-content.active');
-        const rows = activeTab.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(searchValue) ? '' : 'none';
-        });
+    // الكاشير
+    function searchPOS(v) {
+        const box = document.getElementById('pos-sug');
+        if(!v) { box.style.display='none'; return; }
+        const ms = db.inventory.filter(i => i.name.includes(v));
+        box.innerHTML = ms.map(i => `<div class="sug-item" onclick="setPOS('${i.name}')"><span>${i.name}</span><span>(${i.qty})</span></div>`).join('');
+        box.style.display = ms.length ? 'block' : 'none';
+    }
+    function setPOS(n) { document.getElementById('pos-in').value = n; document.getElementById('pos-sug').style.display='none'; }
+
+    function sellNow() {
+        const n = document.getElementById('pos-in').value;
+        const q = parseInt(document.getElementById('pos-q').value) || 1;
+        const i = db.inventory.find(x => x.name === n);
+        if(i && i.qty >= q) {
+            i.qty -= q;
+            db.today.unshift({ 
+                time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), 
+                name: n, qty: q, unitPrice: i.sell, totalPrice: i.sell * q 
+            });
+            document.getElementById('pos-in').value = '';
+            save();
+        } else { alert("الكمية غير كافية!"); }
     }
 
-    // --- المخزن (تعديل العرض) ---
-    function addToInventory() {
-        const name = document.getElementById('p-name').value;
-        const qty = parseFloat(document.getElementById('p-qty').value) || 0;
-        const buy = parseFloat(document.getElementById('p-buy').value) || 0;
-        const sell = parseFloat(document.getElementById('p-sell').value) || 0;
-        const sup = document.getElementById('p-sup').value;
-
-        if(!name || !buy || !sell) return alert("أكمل البيانات الأساسية");
-
-        db.inventory.push({ name, qty, buy, sell, sup, id: Date.now() });
-        saveAndRender();
-        ['p-name', 'p-qty', 'p-buy', 'p-sell'].forEach(id => document.getElementById(id).value = '');
+    // المخزن
+    function saveInventory() {
+        const id = document.getElementById('inv-edit-id').value;
+        const n = document.getElementById('inv-n').value, q = parseInt(document.getElementById('inv-q').value),
+              m = parseInt(document.getElementById('inv-m').value), b = parseFloat(document.getElementById('inv-buy').value),
+              s = parseFloat(document.getElementById('inv-sell').value);
+        if(!n) return;
+        if(id) {
+            const idx = db.inventory.findIndex(x => x.id == id);
+            db.inventory[idx] = { id: parseInt(id), name: n, qty: q, min: m, buy: b, sell: s };
+            document.getElementById('inv-edit-id').value = "";
+            document.getElementById('inv-btn').innerText = "حفظ في المخزن";
+        } else {
+            db.inventory.push({ id: Date.now(), name: n, qty: q, min: m, buy: b, sell: s });
+        }
+        ['inv-n','inv-q','inv-m','inv-buy','inv-sell'].forEach(f => document.getElementById(f).value = '');
+        save();
     }
 
-    function renderInventory() {
-        const list = document.getElementById('inventory-list');
-        list.innerHTML = db.inventory.map((p, i) => `
+    function editInv(id) {
+        const i = db.inventory.find(x => x.id == id);
+        document.getElementById('inv-edit-id').value = i.id;
+        document.getElementById('inv-n').value = i.name;
+        document.getElementById('inv-q').value = i.qty;
+        document.getElementById('inv-m').value = i.min;
+        document.getElementById('inv-buy').value = i.buy;
+        document.getElementById('inv-sell').value = i.sell;
+        document.getElementById('inv-btn').innerText = "تحديث الآن";
+        showTab('inv');
+    }
+
+    // المصروفات
+    function saveExpense() {
+        const id = document.getElementById('exp-edit-id').value;
+        const n = document.getElementById('exp-n').value, a = parseFloat(document.getElementById('exp-a').value);
+        if(!n || a <= 0) return;
+        if(id) {
+            const idx = db.expenses.findIndex(e => e.id == id);
+            db.expenses[idx] = { id: parseInt(id), name: n, amt: a };
+            document.getElementById('exp-edit-id').value = "";
+            document.getElementById('exp-btn').innerText = "حفظ المصروف";
+        } else {
+            db.expenses.push({ id: Date.now(), name: n, amt: a });
+        }
+        document.getElementById('exp-n').value = ""; document.getElementById('exp-a').value = "";
+        save();
+    }
+
+    function editExp(id) {
+        const e = db.expenses.find(x => x.id == id);
+        document.getElementById('exp-edit-id').value = e.id;
+        document.getElementById('exp-n').value = e.name;
+        document.getElementById('exp-a').value = e.amt;
+        document.getElementById('exp-btn').innerText = "تحديث المصروف";
+    }
+
+    function renderInventory(f = "") {
+        document.getElementById('inventory-body').innerHTML = db.inventory.filter(i => i.name.includes(f)).map(i => {
+            const stockVal = i.qty * i.buy;
+            return `
             <tr>
-                <td><b>${p.name}</b></td>
-                <td>${p.qty}</td>
-                <td><span class="badge bg-buy">${p.buy}</span></td>
-                <td><span class="badge bg-total">${(p.qty * p.buy).toFixed(2)}</span></td>
-                <td><span class="badge bg-sell">${p.sell}</span></td>
-                <td>${p.sup || 'عام'}</td>
-                <td class="no-print">
-                    <button class="btn btn-edit" onclick="editInventory(${i})" title="تعديل"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-danger" onclick="deleteItem('inventory', ${i})" title="حذف"><i class="fas fa-trash"></i></button>
+                <td>${i.name}</td><td>${i.qty}</td><td>${i.buy}</td><td>${i.sell}</td>
+                <td style="font-weight:bold">${stockVal.toFixed(2)}</td>
+                <td>
+                    <button class="btn btn-warning" style="display:inline; padding:5px" onclick="editInv(${i.id})">تعديل</button>
+                    <button class="btn btn-danger" style="display:inline; padding:5px" onclick="if(confirm('حذف؟')){db.inventory=db.inventory.filter(x=>x.id!=${i.id});save();}">حذف</button>
                 </td>
-            </tr>
+            </tr>`;
+        }).join('');
+    }
+
+    function renderAll() {
+        const tTotal = db.today.reduce((s,i)=>s+i.totalPrice, 0);
+        const eTotal = db.expenses.reduce((s,i)=>s+i.amt, 0);
+        const invTotalVal = db.inventory.reduce((s,i)=>s+(i.qty * i.buy), 0);
+
+        document.getElementById('stat-today').innerText = tTotal.toFixed(2);
+        document.getElementById('stat-exp').innerText = eTotal.toFixed(2);
+        document.getElementById('stat-profit').innerText = (tTotal - eTotal).toFixed(2);
+        document.getElementById('stat-inv-val').innerText = invTotalVal.toFixed(2);
+
+        document.getElementById('today-sales-body').innerHTML = db.today.map(i => `
+            <tr><td>${i.time}</td><td>${i.name}</td><td>${i.qty}</td><td>${i.unitPrice}</td><td>${i.totalPrice.toFixed(2)}</td></tr>
         `).join('');
-    }
 
-    // --- السوق (تعديل العرض والحساب) ---
-    function addToMarket() {
-        const item = document.getElementById('m-item').value;
-        const qty = parseFloat(document.getElementById('m-qty').value) || 1;
-        const price = parseFloat(document.getElementById('m-price').value) || 0;
-        const place = document.getElementById('m-place').value;
-
-        if(!item || !price) return alert("أدخل اسم المادة والسعر");
-
-        db.market.push({ item, qty, price, place, id: Date.now() });
-        saveAndRender();
-        ['m-item', 'm-qty', 'm-price', 'm-place'].forEach(id => document.getElementById(id).value = '');
-    }
-
-    function renderMarket() {
-        const list = document.getElementById('market-list');
-        list.innerHTML = db.market.map((m, i) => `
-            <tr>
-                <td>${m.item}</td>
-                <td>${m.qty}</td>
-                <td>${m.price}</td>
-                <td style="font-weight:bold; color:var(--primary-color);">${(m.qty * m.price).toFixed(2)}</td>
-                <td>${m.place}</td>
-                <td class="no-print">
-                    <button class="btn btn-edit" onclick="editMarket(${i})" title="تعديل"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-danger" onclick="deleteItem('market', ${i})" title="حذف"><i class="fas fa-trash"></i></button>
-                </td>
-            </tr>
+        document.getElementById('expense-body').innerHTML = db.expenses.map(e => `
+            <tr><td>${e.name}</td><td>${e.amt}</td><td><button class="btn btn-warning" onclick="editExp(${e.id})">تعديل</button></td></tr>
         `).join('');
-    }
-
-    function saveMarketInvoice() {
-        if(db.market.length === 0) return alert("الجدول فارغ!");
         
-        // حساب الإجمالي بناءً على (الكمية × السعر) لكل صنف
-        const total = db.market.reduce((sum, item) => sum + (item.qty * item.price), 0);
-        const invoice = {
-            date: new Date().toLocaleString('ar-EG'),
-            timestamp: Date.now(),
-            items: [...db.market],
-            total: total.toFixed(2)
-        };
-
-        db.history.unshift(invoice);
-        db.market = []; 
-        saveAndRender();
-        alert("تم حفظ الفاتورة بنجاح!");
+        const low = db.inventory.filter(i => i.qty <= i.min);
+        document.getElementById('auto-low-body').innerHTML = low.map(i => `<tr><td>${i.name}</td><td><button class="btn btn-success" onclick="toggleShop(${i.id})">نقل ➔</button></td></tr>`).join('');
+        const fin = db.inventory.filter(i => db.shopping.includes(i.id));
+        document.getElementById('final-shop-body').innerHTML = fin.map(i => `<tr><td>${i.name}</td><td>✅</td><td><button onclick="toggleShop(${i.id})">X</button></td></tr>`).join('');
+        
+        renderInventory(document.getElementById('inv-search-input')?.value || "");
     }
 
-    // --- تعديل وظيفة التعديل لتشمل الكمية والسعر ---
-    function editInventory(index) {
-        const item = db.inventory[index];
-        const newName = prompt("تعديل اسم المنتج:", item.name);
-        const newQty = prompt("تعديل الكمية:", item.qty);
-        const newBuy = prompt("تعديل سعر الشراء:", item.buy);
-        const newSell = prompt("تعديل سعر البيع:", item.sell);
-
-        if (newName && newQty !== null && newBuy !== null && newSell !== null) {
-            db.inventory[index] = { ...item, name: newName, qty: parseFloat(newQty), buy: parseFloat(newBuy), sell: parseFloat(newSell) };
-            saveAndRender();
-        }
+    function toggleShop(id) {
+        const idx = db.shopping.indexOf(id);
+        if(idx === -1) db.shopping.push(id); else db.shopping.splice(idx, 1);
+        save();
     }
 
-    function editMarket(index) {
-        const item = db.market[index];
-        const newName = prompt("تعديل المادة:", item.item);
-        const newQty = prompt("تعديل الكمية:", item.qty);
-        const newPrice = prompt("تعديل سعر القطعة:", item.price);
-        if (newName && newQty !== null && newPrice !== null) {
-            db.market[index] = { ...item, item: newName, qty: parseFloat(newQty), price: parseFloat(newPrice) };
-            saveAndRender();
-        }
-    }
-
-    // --- باقي الوظائف (كما هي) ---
-    function renderHistory() {
-        const list = document.getElementById('history-list');
-        list.innerHTML = db.history.map((h, i) => `
-            <tr>
-                <td>${h.date}</td>
-                <td>${h.items.length} مواد</td>
-                <td style="color:var(--danger-color); font-weight:bold;">${h.total}</td>
-                <td><button class="btn btn-info" onclick="viewInvoiceDetails(${i})">عرض</button></td>
-                <td><button class="btn btn-danger" onclick="deleteItem('history', ${i})">حذف</button></td>
-            </tr>
-        `).join('');
-    }
-
-    function viewInvoiceDetails(index) {
-        const inv = db.history[index];
-        let details = `فاتورة بتاريخ: ${inv.date}\n\n`;
-        inv.items.forEach(item => {
-            details += `- ${item.item} | الكمية: ${item.qty} | السعر: ${item.price} | المجموع: ${(item.qty * item.price).toFixed(2)}\n`;
-        });
-        details += `\nإجمالي الفاتورة: ${inv.total}`;
-        alert(details);
-    }
-
-    function addSupplier() {
-        const name = document.getElementById('s-name').value;
-        if(!name) return;
-        db.suppliers.push({ name, phone: document.getElementById('s-phone').value });
-        saveAndRender();
-        document.getElementById('s-name').value = '';
-        document.getElementById('s-phone').value = '';
-    }
-
-    function renderSuppliers() {
-        const list = document.getElementById('suppliers-list');
-        const select = document.getElementById('p-sup');
-        list.innerHTML = db.suppliers.map((s, i) => `
-            <tr><td>${s.name}</td><td>${s.phone}</td>
-            <td><button class="btn btn-danger" onclick="deleteItem('suppliers', ${i})">حذف</button></td></tr>
-        `).join('');
-        select.innerHTML = '<option value="">اختر مورد...</option>' + 
-            db.suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-    }
-
-    function deleteItem(type, index) {
-        if(confirm("هل أنت متأكد من الحذف؟")) {
-            db[type].splice(index, 1);
-            saveAndRender();
-        }
-    }
-
-    function saveAndRender() {
-        localStorage.setItem('inv_db_v2', JSON.stringify(db.inventory));
-        localStorage.setItem('market_db_v2', JSON.stringify(db.market));
-        localStorage.setItem('history_db_v2', JSON.stringify(db.history));
-        localStorage.setItem('sup_db_v2', JSON.stringify(db.suppliers));
-        renderInventory();
-        renderMarket();
-        renderSuppliers();
-        renderHistory();
-    }
-
-    function toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        document.getElementById('themeIcon').innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-    }
-
-    window.onload = saveAndRender;
+    window.onload = () => {
+        if(localStorage.getItem('darkV12') === 'true') document.body.classList.add('dark-mode');
+        renderAll();
+    };
 </script>
-
 </body>
 </html>
