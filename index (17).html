@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة المخزن والموردين المتطور</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+            --warning-color: #f8961e;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --bg-color: #f0f2f5;
+            --text-color: #333;
+            --card-bg: white;
+            --border-color: #ddd;
+            --table-hover: #f8f9fa;
+            --th-bg: #4361ee;
+            --th-color: white;
+        }
+
+        .dark-mode {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --border-color: #333;
+            --table-hover: #2d2d2d;
+            --th-bg: #3a3a3a;
+            --th-color: #e0e0e0;
+            --light-color: #2d2d2d;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.3s, color 0.3s; }
+        
+        body {
+            font-family: 'Tajawal', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toggle-dark-mode { background: none; border: none; color: var(--text-color); font-size: 20px; cursor: pointer; }
+        
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .tab { padding: 10px 20px; cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab.active { border-bottom: 3px solid var(--primary-color); font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .input-section, .search-advanced-section {
+            background-color: var(--light-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .input-grid, .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .input-field { display: flex; flex-direction: column; }
+        .input-field label { margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        .input-field input, .input-field select, .input-field textarea {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background-color: var(--primary-color); color: white; }
+        .btn-success { background-color: var(--success-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .btn-warning { background-color: var(--warning-color); color: white; }
+        .btn-info { background-color: #4895ef; color: white; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: var(--card-bg); }
+        th, td { padding: 12px; text-align: right; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--th-bg); color: var(--th-color); }
+
+        .product-image { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+        
+        .search-results-info {
+            display: flex; justify-content: space-between; padding: 10px;
+            background: rgba(67, 97, 238, 0.1); border-radius: 8px; margin-bottom: 10px; font-weight: bold;
+        }
+
+        .drag-drop-area {
+            border: 2px dashed var(--border-color);
+            padding: 15px; text-align: center; border-radius: 8px; cursor: pointer; margin-bottom: 10px;
+        }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; }
+        .modal-content { background: var(--card-bg); margin: 5% auto; padding: 25px; border-radius: 10px; max-width: 800px; position: relative; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span><i class="fas fa-warehouse"></i> نظام إدارة المخزن</span>
+            <button class="toggle-dark-mode" id="toggleDarkMode"><i class="fas fa-moon"></i></button>
+        </h1>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="products">المنتجات</div>
+            <div class="tab" data-tab="suppliers">الموردين</div>
+            <div class="tab" data-tab="invoices">سجل الفواتير</div>
+        </div>
+
+        <div class="tab-content active" id="products-tab">
+            <div class="input-section">
+                <div class="input-grid">
+                    <div class="input-field">
+                        <label>اسم المنتج</label>
+                        <input type="text" id="productName" placeholder="اسم المنتج">
+                    </div>
+                    <div class="input-field">
+                        <label>الكمية</label>
+                        <input type="number" id="productQuantity" value="1" oninput="calculateTotal()">
+                    </div>
+                    <div class="input-field">
+                        <label>سعر الشراء (دينار)</label>
+                        <input type="number" id="unitPrice" step="0.01" oninput="calculateTotal()">
+                    </div>
+                    <div class="input-field">
+                        <label>السعر الإجمالي (تلقائي)</label>
+                        <input type="number" id="totalPrice" readonly style="background:#eee;">
+                    </div>
+                    <div class="input-field">
+                        <label>سعر البيع</label>
+                        <input type="number" id="salePrice" step="0.01">
+                    </div>
+                    <div class="input-field">
+                        <label>المورد</label>
+                        <select id="productSupplier"><option value="">اختر مورد...</option></select>
+                    </div>
+                </div>
+
+                <div class="drag-drop-area" id="dropArea">
+                    <i class="fas fa-cloud-upload-alt"></i> <p>اسحب صورة المنتج هنا</p>
+                    <input type="file" id="productImage" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="addProduct()"><i class="fas fa-plus"></i> إضافة منتج</button>
+                    <button class="btn btn-success" onclick="saveToInvoices()"><i class="fas fa-save"></i> حفظ كفاتورة</button>
+                    <button class="btn btn-info" onclick="clearForm()"><i class="fas fa-broom"></i> مسح</button>
+                </div>
+            </div>
+
+            <div class="search-advanced-section">
+                <h3 style="margin-bottom:10px;"><i class="fas fa-search"></i> فلترة وبحث متقدم</h3>
+                <div class="search-grid">
+                    <div class="input-field">
+                        <label>بحث عام</label>
+                        <input type="text" id="advSearchText" placeholder="اسم، مورد، ملاحظات..." oninput="renderInventory()">
+                    </div>
+                    <div class="input-field">
+                        <label>من تاريخ</label>
+                        <input type="date" id="searchDateFrom" onchange="renderInventory()">
+                    </div>
+                    <div class="input-field">
+                        <label>السعر من</label>
+                        <input type="number" id="searchPriceMin" oninput="renderInventory()">
+                    </div>
+                    <div class="input-field">
+                        <label>ترتيب حسب</label>
+                        <select id="searchSortBy" onchange="renderInventory()">
+                            <option value="newest">الأحدث</option>
+                            <option value="priceHigh">السعر (أعلى)</option>
+                            <option value="qtyHigh">الكمية (أعلى)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="search-results-info">
+                    <span id="resultsCount">النتائج: 0</span>
+                    <span id="resultsTotal">إجمالي القيمة: 0.00 دينار</span>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>المنتج</th>
+                            <th>الكمية</th>
+                            <th>سعر الشراء</th>
+                            <th>الإجمالي</th>
+                            <th>المورد</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-content" id="suppliers-tab">
+            <div class="input-section">
+                <div class="input-grid">
+                    <input type="text" id="suppName" placeholder="اسم المورد">
+                    <input type="tel" id="suppPhone" placeholder="الهاتف">
+                    <button class="btn btn-primary" onclick="addSupplier()">إضافة مورد</button>
+                </div>
+            </div>
+            <table id="suppliersTable">
+                <thead><tr><th>الاسم</th><th>الهاتف</th><th>الإجراءات</th></tr></thead>
+                <tbody id="suppliersBody"></tbody>
+            </table>
+        </div>
+
+        <div class="tab-content" id="invoices-tab">
+            <table id="invoicesTable">
+                <thead><tr><th>رقم الفاتورة</th><th>التاريخ</th><th>المجموع</th><th>الإجراءات</th></tr></thead>
+                <tbody id="invoicesBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="invoiceModal">
+        <div class="modal-content">
+            <span style="cursor:pointer; color:red; float:left;" onclick="closeModal()">إغلاق &times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        let inventory = JSON.parse(localStorage.getItem('inventory')) || [];
+        let suppliers = JSON.parse(localStorage.getItem('suppliers')) || [];
+        let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+        let currentImg = null;
+        let editIdx = -1;
+
+        // حساب الإجمالي تلقائياً (الطلب الأساسي)
+        function calculateTotal() {
+            const qty = parseFloat(document.getElementById('productQuantity').value) || 0;
+            const price = parseFloat(document.getElementById('unitPrice').value) || 0;
+            document.getElementById('totalPrice').value = (qty * price).toFixed(2);
+        }
+
+        function addProduct() {
+            const name = document.getElementById('productName').value;
+            const qty = parseFloat(document.getElementById('productQuantity').value);
+            const price = parseFloat(document.getElementById('unitPrice').value);
+            
+            if(!name || !qty || !price) return alert("يرجى ملء البيانات الأساسية");
+
+            const item = {
+                name, qty, price,
+                salePrice: parseFloat(document.getElementById('salePrice').value) || 0,
+                supplier: document.getElementById('productSupplier').value,
+                image: currentImg,
+                date: new Date().toISOString()
+            };
+
+            if(editIdx === -1) inventory.push(item);
+            else { inventory[editIdx] = item; editIdx = -1; }
+
+            save();
+            renderInventory();
+            clearForm();
+        }
+
+        function renderInventory() {
+            const body = document.getElementById('inventoryBody');
+            const search = document.getElementById('advSearchText').value.toLowerCase();
+            const minP = parseFloat(document.getElementById('searchPriceMin').value) || 0;
+            const sort = document.getElementById('searchSortBy').value;
+
+            let filtered = inventory.filter(p => 
+                (p.name.toLowerCase().includes(search) || (p.supplier && p.supplier.toLowerCase().includes(search))) &&
+                (p.price >= minP)
+            );
+
+            // ترتيب
+            if(sort === 'priceHigh') filtered.sort((a,b) => b.price - a.price);
+            if(sort === 'qtyHigh') filtered.sort((a,b) => b.qty - a.qty);
+            if(sort === 'newest') filtered.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            body.innerHTML = '';
+            let totalVal = 0;
+
+            filtered.forEach((p, i) => {
+                const subTotal = p.qty * p.price;
+                totalVal += subTotal;
+                body.innerHTML += `
+                    <tr>
+                        <td><img src="${p.image || 'https://via.placeholder.com/50'}" class="product-image"></td>
+                        <td>${p.name}</td>
+                        <td>${p.qty}</td>
+                        <td>${p.price.toFixed(2)}</td>
+                        <td style="font-weight:bold; color:var(--primary-color);">${subTotal.toFixed(2)}</td>
+                        <td>${p.supplier || '-'}</td>
+                        <td>
+                            <button class="btn btn-warning" onclick="editProd(${i})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-danger" onclick="deleteProd(${i})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('resultsCount').innerText = `النتائج: ${filtered.length}`;
+            document.getElementById('resultsTotal').innerText = `إجمالي القيمة: ${totalVal.toFixed(2)} دينار`;
+        }
+
+        // حفظ الفواتير
+        function saveToInvoices() {
+            if(inventory.length === 0) return;
+            const inv = {
+                id: 'INV-' + Date.now(),
+                date: new Date().toLocaleString('ar-EG'),
+                items: [...inventory],
+                total: inventory.reduce((a, b) => a + (b.qty * b.price), 0)
+            };
+            invoices.unshift(inv);
+            save();
+            renderInvoices();
+            alert("تم حفظ الفاتورة");
+        }
+
+        function renderInvoices() {
+            const body = document.getElementById('invoicesBody');
+            body.innerHTML = invoices.map((inv, i) => `
+                <tr>
+                    <td>${inv.id}</td>
+                    <td>${inv.date}</td>
+                    <td>${inv.total.toFixed(2)}</td>
+                    <td><button class="btn btn-info" onclick="viewInv(${i})">عرض</button></td>
+                </tr>
+            `).join('');
+        }
+
+        // وظائف الموردين
+        function addSupplier() {
+            const name = document.getElementById('suppName').value;
+            if(!name) return;
+            suppliers.push({name, phone: document.getElementById('suppPhone').value});
+            save();
+            renderSuppliers();
+            updateSuppSelect();
+        }
+
+        function renderSuppliers() {
+            document.getElementById('suppliersBody').innerHTML = suppliers.map((s, i) => `
+                <tr><td>${s.name}</td><td>${s.phone}</td><td><button class="btn btn-danger" onclick="delSupp(${i})">حذف</button></td></tr>
+            `).join('');
+        }
+
+        function updateSuppSelect() {
+            const sel = document.getElementById('productSupplier');
+            sel.innerHTML = '<option value="">اختر مورد...</option>' + 
+                suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+        }
+
+        // تهيئة عامة
+        function save() {
+            localStorage.setItem('inventory', JSON.stringify(inventory));
+            localStorage.setItem('suppliers', JSON.stringify(suppliers));
+            localStorage.setItem('invoices', JSON.stringify(invoices));
+        }
+
+        function clearForm() {
+            document.querySelectorAll('.input-grid input').forEach(i => i.value = '');
+            document.getElementById('productQuantity').value = 1;
+            currentImg = null;
+            editIdx = -1;
+        }
+
+        // الوضع المظلم والتبويبات
+        document.getElementById('toggleDarkMode').onclick = () => {
+            document.body.classList.toggle('dark-mode');
+        };
+
+        document.querySelectorAll('.tab').forEach(t => {
+            t.onclick = () => {
+                document.querySelectorAll('.tab, .tab-content').forEach(el => el.classList.remove('active'));
+                t.classList.add('active');
+                document.getElementById(t.dataset.tab + '-tab').classList.add('active');
+            }
+        });
+
+        // الصور
+        const dropArea = document.getElementById('dropArea');
+        dropArea.onclick = () => document.getElementById('productImage').click();
+        document.getElementById('productImage').onchange = (e) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => { currentImg = ev.target.result; dropArea.innerHTML = "تم تحميل الصورة"; };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+
+        function viewInv(i) {
+            const inv = invoices[i];
+            let content = `<h3>فاتورة: ${inv.id}</h3><table style="width:100%"><tr><th>المنتج</th><th>المجموع</th></tr>`;
+            inv.items.forEach(p => content += `<tr><td>${p.name}</td><td>${(p.qty * p.price).toFixed(2)}</td></tr>`);
+            content += `</table><h2 style="margin-top:15px;">الإجمالي النهائي: ${inv.total.toFixed(2)} دينار</h2>`;
+            document.getElementById('modalBody').innerHTML = content;
+            document.getElementById('invoiceModal').style.display = 'block';
+        }
+
+        function closeModal() { document.getElementById('invoiceModal').style.display = 'none'; }
+
+        window.onload = () => { renderInventory(); renderSuppliers(); renderInvoices(); updateSuppSelect(); };
+    </script>
+</body>
+</html>
